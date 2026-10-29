@@ -1,0 +1,805 @@
+     1→"use client";
+     2→
+     3→/**
+     4→ * The MOTUS stage — one WebGL canvas, one continuous journey.
+     5→ *
+     6→ * Chapter I–III   the Earth: a still, photorealistic globe that only moves
+     7→ *                 when the visitor scrolls (rotation is a story event, not
+     8→ *                 an idle animation). Real relief from the topography map.
+     9→ * Chapter IV      the landscape: the camera dives through a cloud pass and
+    10→ *                 the land itself morphs between three themed systems —
+    11→ *                 fault country, river delta, meandering river — while the
+    12→ *                 pointer floats the camera over the terrain.
+    13→ * Chapter V       the same terrain, read as radar (speckle, desaturation)
+    14→ *                 and then as measurement (contours, survey grid), with the
+    15→ *                 compare slider coupled live to the shader.
+    16→ * Chapter VI      pull back through darkness to the whole Earth, night side
+    17→ *                 first — city lights carrying the story home.
+    18→ *
+    19→ * Every value is derived from `storyState.smooth`. If the visitor stops
+    20→ * scrolling, the world is perfectly still.
+    21→ */
+    22→
+    23→import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+    24→import * as THREE from "three";
+    25→import { Canvas, useFrame } from "@react-three/fiber";
+    26→import {
+    27→  storyState,
+    28→  smoothstep,
+    29→  mix,
+    30→  track,
+    31→  track1,
+    32→  clamp,
+    33→  TL,
+    34→  setLoadProgress,
+    35→} from "../scroll";
+    36→import { SECTORS } from "../data";
+    37→import { EARTH_ROTY } from "./choreo";
+    38→import {
+    39→  earthVertex,
+    40→  earthFragment,
+    41→  terrainVertex,
+    42→  terrainFragment,
+    43→} from "./shaders";
+    44→
+    45→/* ------------------------------------------------------------------ */
+    46→/* shared choreography keyframes                                       */
+    47→/* ------------------------------------------------------------------ */
+    48→
+    49→const CAM_POS: { p: number; v: number[] }[] = [
+    50→  { p: 0.0, v: [0.0, 0.34, 6.55] },
+    51→  { p: 0.11, v: [0.1, 0.26, 6.1] },
+    52→  { p: 0.24, v: [0.62, 0.08, 4.35] },
+    53→  { p: 0.33, v: [1.25, 0.02, 3.0] },
+    54→  { p: 0.4, v: [1.72, 0.0, 2.42] },
+    55→];
+    56→
+    57→const CAM_LOOK: { p: number; v: number[] }[] = [
+    58→  { p: 0.0, v: [0.0, 0.66, 0.0] },
+    59→  { p: 0.11, v: [0.05, 0.55, 0.0] },
+    60→  { p: 0.24, v: [0.22, 0.28, 0.0] },
+    61→  { p: 0.33, v: [0.75, 0.06, 0.0] },
+    62→  { p: 0.4, v: [1.05, 0.0, 0.0] },
+    63→];
+    64→
+    65→const SUN_DIR: { p: number; v: number[] }[] = [
+    66→  { p: 0.0, v: [-0.72, 0.3, 0.55] },
+    67→  { p: 0.24, v: [-0.5, 0.26, 0.62] },
+    68→  { p: 0.4, v: [0.1, 0.18, 0.65] },
+    69→  { p: 0.9, v: [-0.82, 0.22, -0.42] },
+    70→  { p: 1.0, v: [-0.82, 0.22, -0.42] },
+    71→];
+    72→
+    73→/** finale pose — Earth returns as a night-side gem with city lights */
+    74→const FINALE_POS: { p: number; v: number[] }[] = [
+    75→  { p: 0.9, v: [0.0, 0.52, 11.6] },
+    76→  { p: 1.0, v: [0.0, 0.46, 10.35] },
+    77→];
+    78→const FINALE_LOOK: { p: number; v: number[] }[] = [
+    79→  { p: 0.9, v: [0.0, 0.44, 0.0] },
+    80→  { p: 1.0, v: [0.0, 0.4, 0.0] },
+    81→];
+    82→const FINALE_ROTY: { p: number; v: number }[] = [
+    83→  { p: 0.9, v: 1.15 },
+    84→  { p: 1.0, v: 1.05 },
+    85→];
+    86→
+    87→/** terrain camera — the flight over the changing systems */
+    88→const TCAM_POS: { p: number; v: number[] }[] = [
+    89→  { p: 0.4, v: [0.0, 2.3, 8.6] },
+    90→  { p: 0.455, v: [0.55, 0.62, 6.3] },
+    91→  { p: 0.525, v: [-0.45, 0.5, 5.15] },
+    92→  { p: 0.61, v: [0.85, 0.72, 4.5] },
+    93→  { p: 0.7, v: [-0.65, 0.95, 5.5] },
+    94→  { p: 0.745, v: [0.0, 3.6, 7.4] },
+    95→  { p: 0.8, v: [0.0, 6.2, 8.8] },
+    96→  { p: 0.9, v: [0.0, 7.4, 9.6] },
+    97→];
+    98→
+    99→const TCAM_LOOK: { p: number; v: number[] }[] = [
+   100→  { p: 0.4, v: [0.0, -1.7, -3.2] },
+   101→  { p: 0.455, v: [0.2, -1.5, -1.6] },
+   102→  { p: 0.525, v: [-0.9, -1.3, -1.2] },
+   103→  { p: 0.61, v: [0.9, -1.35, -0.9] },
+   104→  { p: 0.7, v: [-1.0, -1.3, -1.0] },
+   105→  { p: 0.745, v: [0.0, -1.6, -0.8] },
+   106→  { p: 0.8, v: [0.0, -1.75, -0.2] },
+   107→  { p: 0.9, v: [0.0, -1.8, 0.0] },
+   108→];
+   109→
+   110→/** terrain key light + colour grade per system */
+   111→const T_SUN: { p: number; v: number[] }[] = [
+   112→  { p: 0.4, v: [-0.55, 0.5, 0.35] },
+   113→  { p: 0.525, v: [-0.5, 0.52, 0.33] },
+   114→  { p: 0.61, v: [-0.2, 0.72, 0.4] },
+   115→  { p: 0.7, v: [0.45, 0.55, 0.3] },
+   116→  { p: 0.79, v: [0.1, 0.8, 0.45] },
+   117→  { p: 0.9, v: [0.1, 0.8, 0.45] },
+   118→];
+   119→
+   120→const T_TINT: { p: number; v: number[] }[] = [
+   121→  { p: 0.4, v: [1.1, 0.96, 0.86] },
+   122→  { p: 0.525, v: [1.1, 0.96, 0.86] },
+   123→  { p: 0.61, v: [0.88, 1.0, 1.05] },
+   124→  { p: 0.7, v: [0.93, 1.05, 0.9] },
+   125→  { p: 0.79, v: [0.96, 1.0, 1.03] },
+   126→  { p: 0.9, v: [0.96, 1.0, 1.03] },
+   127→];
+   128→
+   129→const T_FOG: { p: number; v: number[] }[] = [
+   130→  { p: 0.4, v: [0.118, 0.088, 0.066] },
+   131→  { p: 0.525, v: [0.118, 0.088, 0.066] },
+   132→  { p: 0.61, v: [0.05, 0.11, 0.125] },
+   133→  { p: 0.7, v: [0.055, 0.09, 0.062] },
+   134→  { p: 0.79, v: [0.045, 0.075, 0.1] },
+   135→  { p: 0.9, v: [0.04, 0.065, 0.09] },
+   136→];
+   137→
+   138→/** where the land morphs between systems */
+   139→const MORPH = {
+   140→  first: { start: 0.525, end: 0.572 },
+   141→  second: { start: 0.61, end: 0.657 },
+   142→};
+   143→
+   144→const PLANE_SPAN = 26;
+   145→const TERRAIN_Y = -1.7;
+   146→
+   147→/* ------------------------------------------------------------------ */
+   148→/* stars                                                               */
+   149→/* ------------------------------------------------------------------ */
+   150→
+   151→function Stars({
+   152→  count,
+   153→  matRef,
+   154→}: {
+   155→  count: number;
+   156→  matRef: React.RefObject<THREE.PointsMaterial | null>;
+   157→}) {
+   158→  const ref = useRef<THREE.Points>(null);
+   159→  const geo = useMemo(() => {
+   160→    const positions = new Float32Array(count * 3);
+   161→    const colors = new Float32Array(count * 3);
+   162→    const c = new THREE.Color();
+   163→    for (let i = 0; i < count; i++) {
+   164→      const u = Math.random();
+   165→      const v = Math.random();
+   166→      const theta = 2 * Math.PI * u;
+   167→      const phi = Math.acos(2 * v - 1);
+   168→      const r = 46 + Math.random() * 34;
+   169→      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+   170→      positions[i * 3 + 1] = r * Math.cos(phi);
+   171→      positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+   172→      const b = 0.35 + Math.pow(Math.random(), 2.4) * 0.65;
+   173→      c.setRGB(b * 0.92, b * 0.96, b);
+   174→      colors[i * 3] = c.r;
+   175→      colors[i * 3 + 1] = c.g;
+   176→      colors[i * 3 + 2] = c.b;
+   177→    }
+   178→    const g = new THREE.BufferGeometry();
+   179→    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+   180→    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+   181→    return g;
+   182→  }, [count]);
+   183→
+   184→  useEffect(() => {
+   185→    return () => geo.dispose();
+   186→  }, [geo]);
+   187→
+   188→  return (
+   189→    <points ref={ref} geometry={geo} frustumCulled={false} renderOrder={-2}>
+   190→      <pointsMaterial
+   191→        ref={matRef}
+   192→        size={0.16}
+   193→        sizeAttenuation
+   194→        vertexColors
+   195→        transparent
+   196→        opacity={0.9}
+   197→        depthWrite={false}
+   198→      />
+   199→    </points>
+   200→  );
+   201→}
+   202→
+   203→/* ------------------------------------------------------------------ */
+   204→/* heightmap derivation — luminance of the landscape photo → relief     */
+   205→/* ------------------------------------------------------------------ */
+   206→
+   207→interface HeightOpts {
+   208→  invert: boolean;
+   209→  strength: number;
+   210→  bias: number;
+   211→}
+   212→
+   213→function makeHeightTexture(
+   214→  url: string,
+   215→  { invert, strength, bias }: HeightOpts,
+   216→): Promise<THREE.CanvasTexture> {
+   217→  return new Promise((resolve, reject) => {
+   218→    const img = new Image();
+   219→    img.onload = () => {
+   220→      const S = 512;
+   221→      const c = document.createElement("canvas");
+   222→      c.width = S;
+   223→      c.height = S;
+   224→      const ctx = c.getContext("2d", { willReadFrequently: true });
+   225→      if (!ctx) return reject(new Error("no 2d context"));
+   226→      // cover-crop to square, softly blurred so the relief is landform,
+   227→      // not photographic noise
+   228→      const scale = Math.max(S / img.width, S / img.height);
+   229→      const dw = img.width * scale;
+   230→      const dh = img.height * scale;
+   231→      ctx.filter = "blur(2.5px)";
+   232→      ctx.drawImage(img, (S - dw) / 2, (S - dh) / 2, dw, dh);
+   233→      ctx.filter = "none";
+   234→      const data = ctx.getImageData(0, 0, S, S);
+   235→      const px = data.data;
+   236→      for (let i = 0; i < px.length; i += 4) {
+   237→        let lum =
+   238→          (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+   239→        lum = clamp((lum - 0.5) * 1.3 + 0.5); // gentle contrast
+   240→        if (invert) lum = 1 - lum;
+   241→        lum = clamp(lum * strength + bias);
+   242→        const v = Math.round(lum * 255);
+   243→        px[i] = v;
+   244→        px[i + 1] = v;
+   245→        px[i + 2] = v;
+   246→        px[i + 3] = 255;
+   247→      }
+   248→      ctx.putImageData(data, 0, 0);
+   249→      const tex = new THREE.CanvasTexture(c);
+   250→      tex.wrapS = THREE.ClampToEdgeWrapping;
+   251→      tex.wrapT = THREE.ClampToEdgeWrapping;
+   252→      resolve(tex);
+   253→    };
+   254→    img.onerror = () => reject(new Error(`failed to load ${url}`));
+   255→    img.src = url;
+   256→  });
+   257→}
+   258→
+   259→/* ------------------------------------------------------------------ */
+   260→/* the terrain                                                         */
+   261→/* ------------------------------------------------------------------ */
+   262→
+   263→interface TerrainSet {
+   264→  color: THREE.Texture;
+   265→  height: THREE.Texture;
+   266→}
+   267→
+   268→function Terrain({
+   269→  sets,
+   270→  matRef,
+   271→  lowPower,
+   272→}: {
+   273→  sets: TerrainSet[];
+   274→  matRef: React.RefObject<THREE.ShaderMaterial | null>;
+   275→  lowPower: boolean;
+   276→}) {
+   277→  const seg = lowPower ? 150 : 220;
+   278→  return (
+   279→    <mesh
+   280→      rotation={[-Math.PI / 2, 0, 0]}
+   281→      position={[0, TERRAIN_Y, 0]}
+   282→      frustumCulled={false}
+   283→    >
+   284→      <planeGeometry args={[PLANE_SPAN, PLANE_SPAN, seg, seg]} />
+   285→      <shaderMaterial
+   286→        ref={matRef}
+   287→        vertexShader={terrainVertex}
+   288→        fragmentShader={terrainFragment}
+   289→        uniforms={{
+   290→          hA: { value: sets[0].height },
+   291→          hB: { value: sets[0].height },
+   292→          cA: { value: sets[0].color },
+   293→          cB: { value: sets[0].color },
+   294→          blend: { value: 0 },
+   295→          amp: { value: 2.6 },
+   296→          span: { value: PLANE_SPAN },
+   297→          sunDir: { value: new THREE.Vector3(-0.55, 0.5, 0.35).normalize() },
+   298→          tint: { value: new THREE.Vector3(1.1, 0.96, 0.86) },
+   299→          fogColor: { value: new THREE.Color(0.118, 0.088, 0.066) },
+   300→          fogNear: { value: 6.0 },
+   301→          fogFar: { value: 15.5 },
+   302→          uFade: { value: 0 },
+   303→          sarAmt: { value: 0 },
+   304→          gridAmt: { value: 0 },
+   305→          gridColor: { value: new THREE.Color(0.76, 0.8, 0.85) },
+   306→        }}
+   307→        transparent
+   308→        depthWrite={false}
+   309→      />
+   310→    </mesh>
+   311→  );
+   312→}
+   313→
+   314→/* ------------------------------------------------------------------ */
+   315→/* the Earth                                                           */
+   316→/* ------------------------------------------------------------------ */
+   317→
+   318→function EarthGlobe({
+   319→  textures,
+   320→  matRef,
+   321→  cloudsRef,
+   322→  groupRef,
+   323→  lightRef,
+   324→  lowPower,
+   325→}: {
+   326→  textures: {
+   327→    day: THREE.Texture;
+   328→    night: THREE.Texture;
+   329→    topo: THREE.Texture;
+   330→    water: THREE.Texture;
+   331→    clouds: THREE.Texture;
+   332→  };
+   333→  matRef: React.RefObject<THREE.ShaderMaterial | null>;
+   334→  cloudsRef: React.RefObject<THREE.Mesh | null>;
+   335→  groupRef: React.RefObject<THREE.Group | null>;
+   336→  lightRef: React.RefObject<THREE.DirectionalLight | null>;
+   337→  lowPower: boolean;
+   338→}) {
+   339→  const uniforms = useMemo(
+   340→    () => ({
+   341→      dayMap: { value: textures.day },
+   342→      nightMap: { value: textures.night },
+   343→      topoMap: { value: textures.topo },
+   344→      waterMap: { value: textures.water },
+   345→      sunDir: { value: new THREE.Vector3(-0.72, 0.3, 0.55).normalize() },
+   346→      dispAmt: { value: 0.05 },
+   347→      texelSize: { value: 1 / 2048 },
+   348→      uFade: { value: 1 },
+   349→    }),
+   350→    [textures],
+   351→  );
+   352→
+   353→  const seg = lowPower ? [72, 52] : [128, 88];
+   354→
+   355→  return (
+   356→    <>
+   357→      <directionalLight ref={lightRef} intensity={2.0} />
+   358→      <group ref={groupRef} rotation={[0, 0, -0.072]}>
+   359→        <mesh>
+   360→          <sphereGeometry args={[2, seg[0], seg[1]]} />
+   361→          <shaderMaterial
+   362→            ref={matRef}
+   363→            vertexShader={earthVertex}
+   364→            fragmentShader={earthFragment}
+   365→            uniforms={uniforms}
+   366→            transparent
+   367→          />
+   368→        </mesh>
+   369→        <mesh ref={cloudsRef} scale={1.006}>
+   370→          <sphereGeometry args={[2, 48, 32]} />
+   371→          <meshLambertMaterial
+   372→            map={textures.clouds}
+   373→            transparent
+   374→            opacity={0.42}
+   375→            depthWrite={false}
+   376→          />
+   377→        </mesh>
+   378→      </group>
+   379→    </>
+   380→  );
+   381→}
+   382→
+   383→/* ------------------------------------------------------------------ */
+   384→/* the director — every frame derives the world from storyState.smooth  */
+   385→/* ------------------------------------------------------------------ */
+   386→
+   387→function Director({
+   388→  earthTextures,
+   389→  terrainSets,
+   390→  onFirstFrame,
+   391→  lowPower,
+   392→}: {
+   393→  earthTextures: Parameters<typeof EarthGlobe>[0]["textures"];
+   394→  terrainSets: TerrainSet[];
+   395→  onFirstFrame: () => void;
+   396→  lowPower: boolean;
+   397→}) {
+   398→  const earthMat = useRef<THREE.ShaderMaterial>(null);
+   399→  const cloudsMesh = useRef<THREE.Mesh>(null);
+   400→  const earthGroup = useRef<THREE.Group>(null);
+   401→  const sunLight = useRef<THREE.DirectionalLight>(null);
+   402→  const terrainMat = useRef<THREE.ShaderMaterial>(null);
+   403→  const starsMat = useRef<THREE.PointsMaterial>(null);
+   404→
+   405→  const tmp = useMemo(
+   406→    () => ({
+   407→      pos: new THREE.Vector3(),
+   408→      look: new THREE.Vector3(),
+   409→      sun: new THREE.Vector3(),
+   410→      tPos: new THREE.Vector3(),
+   411→      tLook: new THREE.Vector3(),
+   412→    }),
+   413→    [],
+   414→  );
+   415→
+   416→  /** which terrain pair is currently bound (0-based index of left slot) */
+   417→  const pair = useRef(0);
+   418→  const dbg = useRef(0);
+   419→
+   420→  useEffect(() => {
+   421→    const raf = requestAnimationFrame(onFirstFrame);
+   422→    return () => cancelAnimationFrame(raf);
+   423→  }, [onFirstFrame]);
+   424→
+   425→  useFrame((state) => {
+   426→    try {
+   427→    const s = storyState;
+   428→    const p = s.smooth;
+   429→
+   430→    /* temporary diagnostics — exposed for verification tooling */
+   431→    if ((dbg.current++ & 63) === 0) {
+   432→      (window as unknown as Record<string, unknown>).__stageDebug = {
+   433→        p,
+   434→        calls: state.gl.info.render.calls,
+   435→        triangles: state.gl.info.render.triangles,
+   436→        sceneChildren: state.scene.children.length,
+   437→        cam: state.camera.position.toArray(),
+   438→        priority: state.internal.priority,
+   439→        frameloop: state.frameloop,
+   440→        canvasSize: [state.size.width, state.size.height],
+   441→        earthVisible: earthGroup.current?.visible ?? null,
+   442→        earthFade: earthMat.current?.uniforms.uFade.value ?? null,
+   443→        terrainVisible: terrainMat.current?.visible ?? null,
+   444→        terrainFade: terrainMat.current?.uniforms.uFade.value ?? null,
+   445→      };
+   446→    }
+   447→    const camera = state.camera;
+   448→    const reduced = s.reduced;
+   449→    const mx = reduced ? 0 : s.mx;
+   450→    const my = reduced ? 0 : s.my;
+   451→    /** whether the landscape phase is active at all */
+   452→    const inTerrain = p >= TL.terrainIn && p < TL.terrainGone;
+   453→
+   454→    /* ---------------- Earth phase ---------------- */
+   455→
+   456→    if (earthMat.current) {
+   457→      const u = earthMat.current.uniforms;
+   458→      // sun
+   459→      const sun = track(SUN_DIR, p);
+   460→      tmp.sun.set(sun[0], sun[1], sun[2]).normalize();
+   461→      u.sunDir.value.copy(tmp.sun);
+   462→      if (sunLight.current) {
+   463→        sunLight.current.position.copy(tmp.sun).multiplyScalar(12);
+   464→      }
+   465→      // fade out through the cloud pass, return for the finale
+   466→      let fade = 1 - smoothstep(0.345, 0.4, p);
+   467→      if (p >= 0.9) fade = smoothstep(0.915, 0.962, p);
+   468→      u.uFade.value = fade;
+   469→    }
+   470→
+   471→    if (earthGroup.current) {
+   472→      earthGroup.current.visible = p < 0.41 || p >= 0.91;
+   473→      let rotY = track1(EARTH_ROTY, Math.min(p, 0.4));
+   474→      if (p >= 0.9) rotY = track1(FINALE_ROTY, p);
+   475→      earthGroup.current.rotation.y = rotY;
+   476→      if (cloudsMesh.current) {
+   477→        const vis = earthGroup.current.visible;
+   478→        cloudsMesh.current.visible = vis && p < 0.41;
+   479→        // clouds drift only relative to scroll — never on their own
+   480→        cloudsMesh.current.rotation.y = rotY * 0.082 + 0.03;
+   481→        const cm = cloudsMesh.current.material as THREE.MeshLambertMaterial;
+   482→        cm.opacity = 0.36 + 0.18 * smoothstep(0.2, 0.36, p);
+   483→      }
+   484→    }
+   485→
+   486→    /* ---------------- Terrain phase ---------------- */
+   487→    const tMat = terrainMat.current;
+   488→    if (tMat) {
+   489→      const u = tMat.uniforms;
+   490→
+   491→      // morph pairs: (0,0) → (0,1) → (1,2) → (2,2)
+   492→      let desiredPair = 0;
+   493→      let blend = 0;
+   494→      if (p < MORPH.first.start) {
+   495→        desiredPair = 0;
+   496→        blend = 0;
+   497→      } else if (p < MORPH.first.end) {
+   498→        desiredPair = 0;
+   499→        blend = smoothstep(MORPH.first.start, MORPH.first.end, p);
+   500→      } else if (p < MORPH.second.start) {
+   501→        desiredPair = 1;
+   502→        blend = 0;
+   503→      } else if (p < MORPH.second.end) {
+   504→        desiredPair = 1;
+   505→        blend = smoothstep(MORPH.second.start, MORPH.second.end, p);
+   506→      } else {
+   507→        desiredPair = 2;
+   508→        blend = 0;
+   509→      }
+   510→
+   511→      if (terrainSets.length === 3) {
+   512→        const a = terrainSets[desiredPair];
+   513→        const b = terrainSets[Math.min(desiredPair + 1, 2)];
+   514→        if (pair.current !== desiredPair || u.hA.value !== a.height) {
+   515→          pair.current = desiredPair;
+   516→          u.hA.value = a.height;
+   517→          u.cA.value = a.color;
+   518→          u.hB.value = b.height;
+   519→          u.cB.value = b.color;
+   520→        }
+   521→      }
+   522→      u.blend.value = blend;
+   523→
+   524→      // fade through the cloud pass; dissolve to space at the end
+   525→      const fadeIn = smoothstep(TL.terrainIn, TL.terrainFull, p);
+   526→      const fadeOut = 1 - smoothstep(TL.terrainOut, TL.terrainGone, p);
+   527→      u.uFade.value = Math.min(fadeIn, fadeOut);
+   528→
+   529→      // key light + grade + fog
+   530→      const tsun = track(T_SUN, clamp(p, 0.4, 0.9));
+   531→      // the pointer leans the light — the landscape answers the hand
+   532→      tmp.sun
+   533→        .set(
+   534→          tsun[0] + (reduced ? 0 : mx * 0.22),
+   535→          tsun[1] + (reduced ? 0 : -my * 0.12),
+   536→          tsun[2],
+   537→        )
+   538→        .normalize();
+   539→      u.sunDir.value.copy(tmp.sun);
+   540→
+   541→      const tint = track(T_TINT, clamp(p, 0.4, 0.9));
+   542→      (u.tint.value as THREE.Vector3).set(tint[0], tint[1], tint[2]);
+   543→      const fog = track(T_FOG, clamp(p, 0.4, 0.9));
+   544→      (u.fogColor.value as THREE.Color).setRGB(fog[0], fog[1], fog[2]);
+   545→
+   546→      // fog opens up as the camera climbs to orbit
+   547→      const climb = smoothstep(0.73, 0.81, p);
+   548→      u.fogNear.value = mix(6.0, 9.0, climb);
+   549→      u.fogFar.value = mix(15.5, 19.0, climb);
+   550→
+   551→      // SAR reading — owned by the compare slider during its beat
+   552→      const sarGate = smoothstep(
+   553→        TL.beats.compare.start - 0.004,
+   554→        TL.beats.compare.start + 0.004,
+   555→        p,
+   556→      );
+   557→      u.sarAmt.value = s.compare * sarGate;
+   558→
+   559→      // measurement reading
+   560→      u.gridAmt.value =
+   561→        smoothstep(
+   562→          TL.beats.investigate.start - 0.002,
+   563→          TL.beats.investigate.start + 0.026,
+   564→          p,
+   565→        ) *
+   566→        (1 - smoothstep(TL.beats.engine.end - 0.02, TL.beats.engine.end, p));
+   567→
+   568→      tMat.transparent = true;
+   569→    }
+   570→
+   571→    /* ---------------- camera ---------------- */
+   572→    const aspect = state.size.width / Math.max(state.size.height, 1);
+   573→    // portrait screens need to step back to keep the composition
+   574→    const aspectFix = aspect < 1 ? mix(1.45, 1.0, aspect) : 1;
+   575→
+   576→    if (p < 0.39) {
+   577→      // ---- space rig
+   578→      const pos = track(CAM_POS, p);
+   579→      const look = track(CAM_LOOK, p);
+   580→      tmp.pos.set(
+   581→        pos[0] + (reduced ? 0 : mx * 0.16),
+   582→        pos[1] + (reduced ? 0 : -my * 0.1),
+   583→        pos[2],
+   584→      );
+   585→      tmp.look.set(look[0], look[1], look[2]);
+   586→    } else if (p < 0.905) {
+   587→      // ---- terrain rig
+   588→      const pos = track(TCAM_POS, clamp(p, 0.4, 0.9));
+   589→      const look = track(TCAM_LOOK, clamp(p, 0.4, 0.9));
+   590→      tmp.pos.set(
+   591→        pos[0] + (reduced ? 0 : mx * 0.55),
+   592→        pos[1] + (reduced ? 0 : -my * 0.32),
+   593→        pos[2] * aspectFix,
+   594→      );
+   595→      tmp.look.set(look[0], look[1], look[2] * aspectFix);
+   596→    } else {
+   597→      // ---- finale: a gentle drift back while the night side turns to face us
+   598→      const pos = track(FINALE_POS, p);
+   599→      const look = track(FINALE_LOOK, p);
+   600→      tmp.pos.set(
+   601→        pos[0] + (reduced ? 0 : mx * 0.3),
+   602→        pos[1] + (reduced ? 0 : -my * 0.18),
+   603→        pos[2],
+   604→      );
+   605→      tmp.look.set(look[0], look[1], look[2]);
+   606→    }
+   607→
+   608→    camera.position.copy(tmp.pos);
+   609→    camera.lookAt(tmp.look);
+   610→
+   611→    /* ---------------- stars ---------------- */
+   612→    if (starsMat.current) {
+   613→      const o =
+   614→        (1 - smoothstep(0.36, 0.43, p) + smoothstep(0.885, 0.94, p)) * 0.9;
+   615→      starsMat.current.opacity = clamp(o, 0, 0.9);
+   616→    }
+   617→
+   618→    /* keep the terrain mesh around but idle when out of phase */
+   619→    if (terrainMat.current) {
+   620→      const mesh = terrainMat.current;
+   621→      mesh.visible = inTerrain || p < TL.terrainGone;
+   622→    }
+   623→
+   624→    /* we own the render loop (priority 1) — auto-render is disabled, so
+   625→       the frame is drawn here, after every camera/uniform update */
+   626→    state.gl.render(state.scene, state.camera);
+   627→    } catch (err) {
+   628→      (window as unknown as Record<string, unknown>).__stageError = String(err);
+   629→    }
+   630→  }, 1);
+   631→
+   632→  return (
+   633→    <>
+   634→      <Stars count={lowPower ? 900 : 1500} matRef={starsMat} />
+   635→      <EarthGlobe
+   636→        textures={earthTextures}
+   637→        matRef={earthMat}
+   638→        cloudsRef={cloudsMesh}
+   639→        groupRef={earthGroup}
+   640→        lightRef={sunLight}
+   641→        lowPower={lowPower}
+   642→      />
+   643→      {terrainSets.length === 3 ? (
+   644→        <Terrain sets={terrainSets} matRef={terrainMat} lowPower={lowPower} />
+   645→      ) : null}
+   646→    </>
+   647→  );
+   648→}
+   649→
+   650→/* ------------------------------------------------------------------ */
+   651→/* asset loading                                                       */
+   652→/* ------------------------------------------------------------------ */
+   653→
+   654→function useStageAssets(lowPower: boolean): {
+   655→  earth: Parameters<typeof EarthGlobe>[0]["textures"] | null;
+   656→  terrain: TerrainSet[];
+   657→} {
+   658→  const [earth, setEarth] = useState<Parameters<
+   659→    typeof EarthGlobe
+   660→  >[0]["textures"] | null>(null);
+   661→  const [terrain, setTerrain] = useState<TerrainSet[]>([]);
+   662→
+   663→  useEffect(() => {
+   664→    let cancelled = false;
+   665→    const TOTAL = 8;
+   666→    let done = 0;
+   667→    const tick = () => {
+   668→      done += 1;
+   669→      setLoadProgress(Math.min(0.94, done / TOTAL), done >= TOTAL);
+   670→    };
+   671→
+   672→    const loadTex = (url: string, srgb: boolean) =>
+   673→      new Promise<THREE.Texture>((resolve, reject) => {
+   674→        new THREE.TextureLoader().load(
+   675→          url,
+   676→          (t) => {
+   677→            if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+   678→            t.anisotropy = 4;
+   679→            tick();
+   680→            resolve(t);
+   681→          },
+   682→          undefined,
+   683→          reject,
+   684→        );
+   685→      });
+   686→
+   687→    (async () => {
+   688→      try {
+   689→        const earthP = Promise.all([
+   690→          loadTex("/textures/earth-blue-marble.jpg", true),
+   691→          loadTex("/textures/earth-night.jpg", true),
+   692→          loadTex("/textures/earth-topology.png", false),
+   693→          loadTex("/textures/earth-water.png", false),
+   694→          loadTex(
+   695→            lowPower ? "/textures/earth-clouds.png" : "/textures/earth-clouds-2k.webp",
+   696→            true,
+   697→          ),
+   698→        ]);
+   699→        const terrainP = Promise.all(
+   700→          SECTORS.map(async (sec) => ({
+   701→            color: await loadTex(sec.image, true),
+   702→            height: await makeHeightTexture(sec.image, sec.height),
+   703→          })),
+   704→        );
+   705→        const [e, t] = await Promise.all([earthP, terrainP]);
+   706→        if (cancelled) return;
+   707→        setLoadProgress(1, true);
+   708→        setEarth({
+   709→          day: e[0],
+   710→          night: e[1],
+   711→          topo: e[2],
+   712→          water: e[3],
+   713→          clouds: e[4],
+   714→        });
+   715→        setTerrain(t);
+   716→      } catch {
+   717→        if (!cancelled) setLoadProgress(1, true);
+   718→      }
+   719→    })();
+   720→
+   721→    return () => {
+   722→      cancelled = true;
+   723→    };
+   724→  }, [lowPower]);
+   725→
+   726→  return { earth, terrain };
+   727→}
+   728→
+   729→/* ------------------------------------------------------------------ */
+   730→/* exported canvas (dynamically imported — keeps three out of the      */
+   731→/* initial bundle)                                                     */
+   732→/* ------------------------------------------------------------------ */
+   733→
+   734→export default function Stage({
+   735→  onReady,
+   736→  paused = false,
+   737→}: {
+   738→  onReady?: () => void;
+   739→  paused?: boolean;
+   740→}) {
+   741→  const lowPower = useMemo(() => {
+   742→    if (typeof window === "undefined") return false;
+   743→    return window.innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4;
+   744→  }, []);
+   745→
+   746→  const maxDpr = useMemo(() => {
+   747→    if (typeof window === "undefined") return 1.5;
+   748→    return Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 1.75);
+   749→  }, [lowPower]);
+   750→
+   751→  const [hidden, setHidden] = useState(false);
+   752→  useEffect(() => {
+   753→    const onVis = () => setHidden(document.hidden);
+   754→    document.addEventListener("visibilitychange", onVis);
+   755→    return () => document.removeEventListener("visibilitychange", onVis);
+   756→  }, []);
+   757→
+   758→  const { earth, terrain } = useStageAssets(lowPower);
+   759→  const ready = earth !== null && terrain.length === 3;
+   760→  const handleFirstFrame = useCallback(() => {
+   761→    if (ready) onReady?.();
+   762→  }, [ready, onReady]);
+   763→
+   764→  const cameraConfig = useMemo(
+   765→    () => ({
+   766→      fov: 42,
+   767→      near: 0.1,
+   768→      far: 200,
+   769→      position: [0, 0.34, 6.55] as [number, number, number],
+   770→    }),
+   771→    [],
+   772→  );
+   773→
+   774→  const glConfig = useMemo(
+   775→    () =>
+   776→      ({
+   777→        antialias: true,
+   778→        alpha: false,
+   779→        stencil: false,
+   780→        powerPreference: "high-performance",
+   781→      }) as const,
+   782→    [],
+   783→  );
+   784→
+   785→  return (
+   786→    <Canvas
+   787→      flat
+   788→      dpr={[1, maxDpr]}
+   789→      camera={cameraConfig}
+   790→      gl={glConfig}
+   791→      frameloop={paused || hidden ? "never" : "always"}
+   792→    >
+   793→      <color attach="background" args={["#04070d"]} />
+   794→      {ready ? (
+   795→        <Director
+   796→          earthTextures={earth}
+   797→          terrainSets={terrain}
+   798→          onFirstFrame={handleFirstFrame}
+   799→          lowPower={lowPower}
+   800→        />
+   801→      ) : null}
+   802→    </Canvas>
+   803→  );
+   804→}
+   805→
