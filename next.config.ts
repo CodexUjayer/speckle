@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   allowedDevOrigins: ["*.space-z.ai", "space-z.ai"],
   images: {
-    qualities: [75, 78],
+    qualities: [75, 78, 82],
   },
 };
 

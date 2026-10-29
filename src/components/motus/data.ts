@@ -89,6 +89,7 @@ export const CHAPTER_4_INTRO = {
   kicker: "Chapter IV — The changing systems",
   heading: "Discover the Earth’s changing systems.",
   body: "The land below is the engine’s field of view. Keep scrolling — the terrain itself will carry you between them.",
+  cue: "Continue the descent",
 } as const;
 
 /* ------------------------------------------------------------------ */

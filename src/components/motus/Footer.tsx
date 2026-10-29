@@ -29,8 +29,13 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
 
 export default function Footer() {
   return (
-    <footer className="relative mt-auto border-t border-white/[0.06] bg-[#03060b]">
-      <div className="mx-auto max-w-7xl px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-16 sm:px-8">
+    <footer className="relative mt-auto bg-[#03060b]">
+      {/* blend in from the finale dark — no hard cut */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[12svh] bg-gradient-to-b from-[#04070d] to-transparent"
+      />
+      <div className="relative mx-auto max-w-7xl px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-16 sm:px-8">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-6">
             <p className="font-display text-2xl font-light tracking-[0.3em] text-white">

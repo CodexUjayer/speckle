@@ -3,11 +3,14 @@
 /**
  * The flowing chapters — IV to VI, after the Earth story.
  *
- * When the pinned globe dive ends inside the closing dark, these sections
- * scroll up over the blackened canvas and carry the story in the classic
- * MOTUS voice: full-bleed landscape systems with quiet parallax, the
- * evidence chapter with an interactive optical/radar comparison, the
- * engine watchlist, and the finale. Honest module statuses throughout.
+ * Where the Earth dive ends in black, the story keeps rolling as one
+ * continuous cut. Chapter IV opens as a title card; the three terrain
+ * systems then play as a pinned, crossfading sequence — a film dissolve
+ * between terrains, a slow Ken Burns drift throughout, the words arriving
+ * and leaving around each dissolve. The evidence chapter melts up over
+ * the last terrain through a long gradient seam (no border, no cut), the
+ * comparison wipes in with a single radar sweep, and the finale racks
+ * into focus like a closing title card. Every part blends into the next.
  */
 
 import {
@@ -19,7 +22,13 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, CircleDot, MoveHorizontal } from "lucide-react";
+import gsap from "gsap";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CircleDot,
+  MoveHorizontal,
+} from "lucide-react";
 import {
   CHAPTER_4_INTRO,
   SECTORS,
@@ -30,7 +39,7 @@ import {
   THEMES,
   type Sector,
 } from "./data";
-import { cinematify } from "./sections/anim";
+import { cinematify, prefersReducedMotion } from "./sections/anim";
 import { clamp } from "./scroll";
 
 /* ------------------------------------------------------------------ */
@@ -58,109 +67,330 @@ function StatusTag({ status }: { status: Sector["status"] }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* a system — full-bleed imagery, themed accent, honest status          */
+/* a system's words — shared by the sequence and the quiet fallback     */
 /* ------------------------------------------------------------------ */
 
-function SectorBlock({ sector, first }: { sector: Sector; first: boolean }) {
-  const ref = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (ref.current) return cinematify(ref.current);
-  }, []);
+function SystemText({ sector }: { sector: Sector }) {
   const left = sector.align === "left";
+  return (
+    <div className={`max-w-xl ${left ? "mr-auto" : "ml-auto"}`}>
+      <p className="chapter-kicker text-[var(--accent)]">
+        System {sector.index} · {sector.kicker}
+      </p>
+      <h2
+        id={`${sector.id}-heading`}
+        className="mt-4 font-display text-4xl font-light leading-[1.06] text-white [text-shadow:0_2px_30px_rgba(4,7,13,0.85)] sm:text-5xl lg:text-6xl"
+      >
+        {sector.heading}
+      </h2>
+      <p className="mt-5 max-w-md text-sm leading-relaxed text-white/75 [text-shadow:0_1px_18px_rgba(4,7,13,0.9)] sm:text-[15px]">
+        {sector.body}
+      </p>
+      <ul className="mt-7 space-y-2" aria-label="Module facts">
+        {sector.meta.map((m) => (
+          <li
+            key={m}
+            className="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.18em] text-white/55"
+          >
+            <span
+              className="block h-px w-4 bg-[var(--accent)]/60"
+              aria-hidden
+            />
+            {m}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-9 flex flex-wrap items-center gap-4">
+        <a
+          href={sector.cta.href}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={`group inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-[12px] font-semibold uppercase tracking-[0.2em] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] ${
+            sector.status === "live"
+              ? "bg-white text-[#0a1220] hover:bg-[var(--accent)]"
+              : "border border-white/35 text-white hover:border-[var(--accent)] hover:bg-white/[0.06]"
+          }`}
+        >
+          {sector.cta.label}
+          {sector.status === "live" ? (
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden
+            />
+          ) : (
+            <ArrowUpRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          )}
+        </a>
+        <StatusTag status={sector.status} />
+      </div>
+    </div>
+  );
+}
 
+/* ------------------------------------------------------------------ */
+/* the terrains — one pinned sequence, film dissolves between them      */
+/* ------------------------------------------------------------------ */
+
+/** The quiet, non-pinned block used when motion is reduced. */
+function StaticSector({ sector, first }: { sector: Sector; first: boolean }) {
+  const left = sector.align === "left";
   return (
     <section
-      ref={ref}
       aria-labelledby={`${sector.id}-heading`}
       className="relative"
       style={{ ["--accent" as string]: sector.theme.accent }}
     >
-      <div className="relative h-[92vh] min-h-[560px] overflow-hidden">
-        <div data-parallax className="absolute -inset-y-[8%] inset-x-0">
-          <Image
-            src={sector.image}
-            alt={sector.imageAlt}
-            fill
-            sizes="100vw"
-            quality={82}
-            className="object-cover"
-            priority={first}
-          />
-        </div>
+      <div className="relative h-[92svh] min-h-[560px] overflow-hidden">
+        <Image
+          src={sector.image}
+          alt={sector.imageAlt}
+          fill
+          sizes="100vw"
+          quality={78}
+          priority={first}
+          className="object-cover"
+        />
         <div
+          aria-hidden
           className={`absolute inset-0 ${
             left
-              ? "bg-gradient-to-r from-[#04070d]/90 via-[#04070d]/35 to-transparent"
-              : "bg-gradient-to-l from-[#04070d]/90 via-[#04070d]/35 to-transparent"
+              ? "bg-gradient-to-r from-[#04070d]/92 via-[#04070d]/38 to-transparent"
+              : "bg-gradient-to-l from-[#04070d]/92 via-[#04070d]/38 to-transparent"
           }`}
         />
-        <div className="absolute inset-0 grain" aria-hidden />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-[#04070d]/60 via-transparent to-[#04070d]/40"
+        />
         <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 sm:px-8">
-          <div className={`max-w-xl ${left ? "mr-auto" : "ml-auto"}`}>
-            <p data-reveal className="chapter-kicker text-[var(--accent)]">
-              System {sector.index} · {sector.kicker}
-            </p>
-            <h2
-              data-reveal
-              id={`${sector.id}-heading`}
-              className="mt-4 font-display text-4xl font-light leading-[1.06] text-white sm:text-5xl lg:text-6xl"
-            >
-              {sector.heading}
-            </h2>
-            <p
-              data-reveal
-              className="mt-5 max-w-md text-sm leading-relaxed text-white/75 sm:text-[15px]"
-            >
-              {sector.body}
-            </p>
-            <ul
-              data-reveal
-              className="mt-7 space-y-2"
-              aria-label="Module facts"
-            >
-              {sector.meta.map((m) => (
-                <li
-                  key={m}
-                  className="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.18em] text-white/55"
-                >
-                  <span
-                    className="block h-px w-4 bg-[var(--accent)]/60"
-                    aria-hidden
-                  />
-                  {m}
-                </li>
-              ))}
-            </ul>
-            <div data-reveal className="mt-9 flex flex-wrap items-center gap-4">
-              <a
-                href={sector.cta.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                className={`group inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-[12px] font-semibold uppercase tracking-[0.2em] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] ${
-                  sector.status === "live"
-                    ? "bg-white text-[#0a1220] hover:bg-[var(--accent)]"
-                    : "border border-white/35 text-white hover:border-[var(--accent)] hover:bg-white/[0.06]"
-                }`}
-              >
-                {sector.cta.label}
-                {sector.status === "live" ? (
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                    aria-hidden
-                  />
-                ) : (
-                  <ArrowUpRight
-                    className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                )}
-              </a>
-              <StatusTag status={sector.status} />
-            </div>
-          </div>
+          <SystemText sector={sector} />
         </div>
       </div>
     </section>
+  );
+}
+
+function SystemsSequence() {
+  const root = useRef<HTMLDivElement>(null);
+  const sticky = useRef<HTMLDivElement>(null);
+  const layers = useRef<Array<HTMLDivElement | null>>([]);
+  const texts = useRef<Array<HTMLDivElement | null>>([]);
+  const ticks = useRef<Array<HTMLSpanElement | null>>([]);
+  /* client-only mount (behind the experience's WebGL gate) — the media
+     query is safe to read at first render */
+  const [reduced] = useState(() => prefersReducedMotion());
+
+  useEffect(() => {
+    if (reduced || !root.current || !sticky.current) return;
+    const l0 = layers.current[0];
+    const l1 = layers.current[1];
+    const l2 = layers.current[2];
+    const t0 = texts.current[0];
+    const t1 = texts.current[1];
+    const t2 = texts.current[2];
+    if (!l0 || !l1 || !l2 || !t0 || !t1 || !t2) return;
+
+    const ctx = gsap.context(() => {
+      /* the two dissolves sit at these beats of the pinned travel */
+      const B1 = 0.335;
+      const B2 = 0.67;
+
+      /* initial states — everything waits in the dark */
+      gsap.set([l1, l2], { autoAlpha: 0 });
+      gsap.set([t0, t1, t2], { autoAlpha: 0, y: 48 });
+      gsap.set(l0, { scale: 1.16, autoAlpha: 0 });
+      gsap.set(l1, { scale: 1.18, xPercent: -2.5 });
+      gsap.set(l2, { scale: 1.16, xPercent: 2 });
+
+      /* entry dissolve — the first terrain rises out of the chapter dark
+         while the title card above scrolls away */
+      gsap.to(l0, {
+        autoAlpha: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: root.current!,
+          start: "top bottom",
+          end: "top top",
+          scrub: 0.5,
+        },
+      });
+
+      let active = -1;
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: root.current!,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.7,
+          onUpdate: (self) => {
+            const p = self.progress;
+            const i = p < 0.34 ? 0 : p < 0.675 ? 1 : 2;
+            if (i === active) return;
+            active = i;
+            const accent = SECTORS[i].theme.accent;
+            sticky.current!.style.setProperty("--accent", accent);
+            texts.current.forEach((el, k) => {
+              if (!el) return;
+              el.inert = k !== i;
+              el.style.pointerEvents = k === i ? "auto" : "none";
+            });
+            ticks.current.forEach((el, k) => {
+              if (!el) return;
+              el.style.width = k === i ? "26px" : "14px";
+              el.style.backgroundColor =
+                k === i ? accent : "rgba(255,255,255,0.28)";
+            });
+          },
+        },
+      });
+
+      /* — terrain 01 · the fault line — */
+      tl.to(l0, { scale: 1.03, duration: 0.385 }, 0);
+      tl.to(t0, { autoAlpha: 1, y: 0, duration: 0.075, ease: "power2.out" }, 0.02);
+      tl.to(t0, { autoAlpha: 0, y: -48, duration: 0.07, ease: "power2.in" }, 0.235);
+
+      /* — dissolve — */
+      tl.to(l1, { autoAlpha: 1, duration: 0.1 }, B1 - 0.055);
+      tl.to(l1, { scale: 1.045, xPercent: 0, duration: 0.37 }, 0.3);
+      tl.set(l0, { visibility: "hidden" }, 0.4);
+
+      /* — terrain 02 · the delta — */
+      tl.to(t1, { autoAlpha: 1, y: 0, duration: 0.075, ease: "power2.out" }, 0.385);
+      tl.to(t1, { autoAlpha: 0, y: -48, duration: 0.07, ease: "power2.in" }, 0.575);
+
+      /* — dissolve — */
+      tl.to(l2, { autoAlpha: 1, duration: 0.1 }, B2 - 0.055);
+      tl.to(l2, { scale: 1.035, xPercent: 0, duration: 0.355 }, 0.645);
+      tl.set(l1, { visibility: "hidden" }, 0.73);
+
+      /* — terrain 03 · the river — stays on stage; the next chapter
+           melts up over it through its own gradient seam */
+      tl.to(t2, { autoAlpha: 1, y: 0, duration: 0.075, ease: "power2.out" }, 0.72);
+    }, root.current);
+
+    return () => ctx.revert();
+  }, [reduced]);
+
+  if (reduced) {
+    return (
+      <div className="relative">
+        {SECTORS.map((s, i) => (
+          <StaticSector key={s.id} sector={s} first={i === 0} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={root}
+      data-frame
+      role="region"
+      aria-label="The changing systems"
+      className="relative z-[1]"
+      style={{ height: "454svh" }}
+    >
+      <div
+        ref={sticky}
+        className="sticky top-0 h-svh overflow-hidden bg-[#04070d]"
+        style={{ ["--accent" as string]: SECTORS[0].theme.accent }}
+      >
+        {/* the terrains — stacked, dissolved one into the next */}
+        {SECTORS.map((s, i) => (
+          <div
+            key={s.id}
+            ref={(el) => {
+              layers.current[i] = el;
+            }}
+            className="absolute inset-0 will-change-transform"
+            style={{ zIndex: 10 + i * 10 }}
+          >
+            <Image
+              src={s.image}
+              alt={s.imageAlt}
+              fill
+              sizes="100vw"
+              quality={82}
+              priority={i === 0}
+              loading="eager"
+              className="object-cover"
+            />
+            <div
+              aria-hidden
+              className={`absolute inset-0 ${
+                s.align === "left"
+                  ? "bg-gradient-to-r from-[#04070d]/92 via-[#04070d]/38 to-transparent"
+                  : "bg-gradient-to-l from-[#04070d]/92 via-[#04070d]/38 to-transparent"
+              }`}
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-[#04070d]/60 via-transparent to-[#04070d]/40"
+            />
+          </div>
+        ))}
+
+        {/* the grade — the same vignette and grain finish as the Earth stage,
+            so the 2D chapters feel cut from the same film */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 120% 90% at 50% 45%, rgba(4,7,13,0) 55%, rgba(4,7,13,0.3) 84%, rgba(4,7,13,0.55) 100%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="grain pointer-events-none absolute inset-0 z-40 opacity-70"
+        />
+
+        {/* the words — one subject per terrain. Only the system on stage
+            takes pointer events and focus. */}
+        {SECTORS.map((s, i) => (
+          <div
+            key={s.id}
+            ref={(el) => {
+              texts.current[i] = el;
+            }}
+            inert={i !== 0}
+            className="absolute inset-0 z-50 overflow-y-auto overscroll-contain"
+            style={{ pointerEvents: i === 0 ? "auto" : "none" }}
+          >
+            <div className="flex min-h-full items-center py-8">
+              <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+                <SystemText sector={s} />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* the sequence rail — three quiet ticks */}
+        <div
+          aria-hidden
+          className="absolute right-2.5 top-1/2 z-50 flex -translate-y-1/2 flex-col items-end gap-2.5 sm:right-7"
+        >
+          {SECTORS.map((s, i) => (
+            <span
+              key={s.id}
+              ref={(el) => {
+                ticks.current[i] = el;
+              }}
+              className="block h-px transition-all duration-500"
+              style={{
+                width: i === 0 ? 26 : 14,
+                backgroundColor:
+                  i === 0 ? s.theme.accent : "rgba(255,255,255,0.28)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -173,11 +403,11 @@ function CompareSlider() {
   const clip = useRef<HTMLDivElement>(null);
   const divider = useRef<HTMLDivElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
-  const [pos, setPos] = useState(35);
+  const posRef = useRef(35);
   const dragging = useRef(false);
 
   const apply = useCallback((v: number) => {
-    setPos(v);
+    posRef.current = v;
     if (divider.current) divider.current.style.left = `${v}%`;
     if (clip.current) clip.current.style.clipPath = `inset(0 0 0 ${v}%)`;
     if (readout.current)
@@ -185,6 +415,37 @@ function CompareSlider() {
     if (root.current)
       root.current.setAttribute("aria-valuenow", String(Math.round(v)));
   }, []);
+
+  /* the radar intro — the frame wipes in, then the divider makes one
+     scanning pass across the scene before settling, the way the engine
+     itself sweeps a scene */
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const el = root.current;
+    if (!el) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el,
+        { clipPath: "inset(0 100% 0 0)" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          duration: 1.4,
+          ease: "power3.inOut",
+          scrollTrigger: { trigger: el, start: "top 80%", once: true },
+          onComplete: () => {
+            const o = { v: 97 };
+            gsap.to(o, {
+              v: 35,
+              duration: 2.1,
+              ease: "power2.inOut",
+              onUpdate: () => apply(o.v),
+            });
+          },
+        },
+      );
+    });
+    return () => ctx.revert();
+  }, [apply]);
 
   const setFromClientX = useCallback(
     (clientX: number) => {
@@ -211,10 +472,10 @@ function CompareSlider() {
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const step = e.shiftKey ? 10 : 4;
     if (e.key === "ArrowLeft") {
-      apply(clamp(pos - step, 2, 98));
+      apply(clamp(posRef.current - step, 2, 98));
       e.preventDefault();
     } else if (e.key === "ArrowRight") {
-      apply(clamp(pos + step, 2, 98));
+      apply(clamp(posRef.current + step, 2, 98));
       e.preventDefault();
     } else if (e.key === "Home") {
       apply(2);
@@ -334,13 +595,15 @@ function VerdictList() {
 }
 
 /* ------------------------------------------------------------------ */
-/* the flowing chapters                                                */
+/* the flowing chapters — one continuous cut                           */
 /* ------------------------------------------------------------------ */
 
 export default function ScrollChapters() {
   const introRef = useRef<HTMLDivElement>(null);
   const evidenceRef = useRef<HTMLElement>(null);
   const finaleRef = useRef<HTMLElement>(null);
+  const finaleKicker = useRef<HTMLParagraphElement>(null);
+  const finaleHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (introRef.current) return cinematify(introRef.current);
@@ -352,45 +615,120 @@ export default function ScrollChapters() {
     if (finaleRef.current) return cinematify(finaleRef.current);
   }, []);
 
+  /* the closing title card — a rack focus that resolves as it centres */
+  useEffect(() => {
+    if (prefersReducedMotion() || !finaleRef.current || !finaleHeading.current)
+      return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        finaleHeading.current,
+        { opacity: 0.2, scale: 1.08, filter: "blur(18px)" },
+        {
+          opacity: 1,
+          scale: 1,
+          filter: "blur(0px)",
+          ease: "none",
+          scrollTrigger: {
+            trigger: finaleRef.current,
+            start: "top 88%",
+            end: "top 30%",
+            scrub: 0.6,
+          },
+        },
+      );
+      if (finaleKicker.current) {
+        gsap.fromTo(
+          finaleKicker.current,
+          { autoAlpha: 0, y: 18 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: finaleRef.current,
+              start: "top 86%",
+              end: "top 46%",
+              scrub: 0.6,
+            },
+          },
+        );
+      }
+    });
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="relative bg-[#04070d]">
-      {/* chapter IV — the changing systems */}
+      {/* chapter IV — the title card after the dark */}
       <div ref={introRef} className="relative bg-[#04070d]">
-        <div className="relative mx-auto max-w-3xl px-5 pb-10 pt-28 text-center sm:px-8 sm:pt-36">
+        <div className="relative mx-auto max-w-3xl px-5 pb-[13svh] pt-28 text-center sm:px-8 sm:pt-36">
           <p data-reveal className="chapter-kicker text-[var(--accent)]">
             {CHAPTER_4_INTRO.kicker}
           </p>
           <h2
-            data-reveal
-            className="mt-4 font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl"
+            data-words
+            className="mt-5 font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl"
           >
             {CHAPTER_4_INTRO.heading}
           </h2>
           <p
             data-reveal
-            className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#93a3ba]"
+            className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-[#93a3ba]"
           >
             {CHAPTER_4_INTRO.body}
           </p>
+          <div
+            data-reveal
+            aria-hidden
+            className="mt-14 flex flex-col items-center gap-3"
+          >
+            <span className="text-[10px] font-medium uppercase tracking-[0.42em] text-white/55">
+              {CHAPTER_4_INTRO.cue}
+            </span>
+            <span className="relative block h-12 w-px overflow-hidden bg-white/15">
+              <span className="cue-line absolute left-0 top-0 h-4 w-px bg-white/80" />
+            </span>
+          </div>
         </div>
-        {SECTORS.map((s, i) => (
-          <SectorBlock key={s.id} sector={s} first={i === 0} />
-        ))}
       </div>
 
-      {/* chapter V — from observation to evidence */}
+      {/* chapter IV — the terrains, playing as one crossfading sequence */}
+      <SystemsSequence />
+
+      {/* chapter V — melts up over the last terrain, no seam, no cut */}
       <section
         ref={evidenceRef}
         aria-labelledby="evidence-heading"
-        className="relative border-t border-white/[0.06] bg-[#050810]"
+        className="relative z-[3] -mt-[38svh]"
         style={{ ["--accent" as string]: THEMES.evidence.accent }}
       >
-        <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
-          <p data-reveal className="chapter-kicker text-[var(--accent)]">
+        {/* the dissolve — the river terrain fades into the evidence dark */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,8,16,0)_0svh,rgba(5,8,16,0.62)_22svh,#050810_38svh)]"
+        />
+        {/* an ambient wash of the chapter accent, breathing at the top */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[85svh] opacity-[0.07]"
+          style={{
+            background:
+              "radial-gradient(58% 42% at 50% 0%, var(--accent) 0%, transparent 72%)",
+          }}
+        />
+        <div aria-hidden className="grain pointer-events-none absolute inset-0" />
+
+        <div className="relative z-[1] mx-auto max-w-6xl px-5 pb-28 pt-[calc(38svh+7.5rem)] sm:px-8 sm:pb-36">
+          <span
+            data-draw
+            aria-hidden
+            className="block h-px w-24 origin-left bg-[var(--accent)]/50"
+          />
+          <p data-reveal className="chapter-kicker mt-5 text-[var(--accent)]">
             {EVIDENCE.kicker}
           </p>
           <h2
-            data-reveal
+            data-words
             id="evidence-heading"
             className="mt-4 max-w-3xl font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl"
           >
@@ -403,9 +741,14 @@ export default function ScrollChapters() {
             {EVIDENCE.body}
           </p>
 
-          <div className="mt-16 grid gap-10 lg:grid-cols-3">
+          <div className="mt-20 grid gap-12 lg:grid-cols-3">
             {EVIDENCE.stages.map((st) => (
-              <div key={st.n} data-reveal>
+              <div key={st.n} data-reveal className="relative pt-6">
+                <span
+                  data-draw
+                  aria-hidden
+                  className="absolute left-0 top-0 block h-px w-full origin-left bg-gradient-to-r from-[var(--accent)]/55 via-white/10 to-transparent"
+                />
                 <p className="stage-number">{st.n}</p>
                 <h3 className="stage-title">{st.title}</h3>
                 <p className="stage-body">{st.body}</p>
@@ -413,25 +756,29 @@ export default function ScrollChapters() {
             ))}
           </div>
 
-          <div data-reveal className="mx-auto mt-16 max-w-4xl">
+          <div data-reveal className="mx-auto mt-20 max-w-4xl">
             <CompareSlider />
           </div>
 
-          <div data-reveal className="mt-16">
+          <div data-reveal className="mt-20">
             <VerdictList />
           </div>
 
-          <div data-reveal className="mt-16">
+          <div data-reveal className="mt-24">
             <p className="chapter-kicker text-[var(--accent)]">
               {EVIDENCE.engineKicker}
             </p>
-            <h3 className="mt-3 font-display text-3xl font-light text-white sm:text-4xl">
+            <h3
+              data-words
+              className="mt-3 font-display text-3xl font-light text-white sm:text-4xl"
+            >
               {EVIDENCE.engineHeading}
             </h3>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#93a3ba]">
               {EVIDENCE.engineBody}
             </p>
             <ul
+              data-stagger
               className="mt-8 grid grid-cols-1 gap-x-10 sm:grid-cols-2 lg:grid-cols-3"
               aria-label="Engine pipelines"
             >
@@ -485,34 +832,45 @@ export default function ScrollChapters() {
         </div>
       </section>
 
-      {/* chapter VI — the finale */}
+      {/* chapter VI — the closing title card, racking into focus */}
       <section
         ref={finaleRef}
         aria-labelledby="finale-heading"
-        className="relative overflow-hidden bg-[#04070d]"
+        className="relative z-[2] overflow-hidden"
         style={{ ["--accent" as string]: THEMES.finale.accent }}
       >
         <div
-          className="pointer-events-none absolute inset-0 opacity-50"
+          data-kenburns="0.16"
+          aria-hidden
+          className="absolute -inset-y-[6%] inset-x-0 opacity-55"
           style={{
             backgroundImage: "url(/landscapes/descent.webp)",
             backgroundSize: "cover",
             backgroundPosition: "center 62%",
           }}
+        />
+        {/* blend in from the evidence dark, settle into the footer dark */}
+        <div
           aria-hidden
+          className="absolute inset-x-0 top-0 h-[32svh] bg-gradient-to-b from-[#050810] via-[#050810]/55 to-transparent"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#04070d]/70 via-transparent to-[#04070d]"
           aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[30svh] bg-gradient-to-b from-transparent via-[#04070d]/55 to-[#04070d]"
         />
-        <div className="relative z-10 mx-auto flex min-h-[80vh] max-w-3xl flex-col items-center justify-center px-5 py-24 text-center sm:px-8">
-          <p data-reveal className="chapter-kicker">
+        <div aria-hidden className="absolute inset-0 bg-[#04070d]/30" />
+        <div aria-hidden className="grain pointer-events-none absolute inset-0" />
+        <div className="relative z-10 mx-auto flex min-h-[92svh] max-w-3xl flex-col items-center justify-center px-5 py-24 text-center sm:px-8">
+          <p
+            ref={finaleKicker}
+            className="chapter-kicker will-change-transform"
+          >
             {FINALE.kicker}
           </p>
           <h2
-            data-reveal
+            ref={finaleHeading}
             id="finale-heading"
-            className="mt-5 font-display text-5xl font-light leading-[1.05] text-white sm:text-6xl"
+            className="mt-5 font-display text-5xl font-light leading-[1.05] text-white will-change-transform sm:text-6xl"
           >
             {FINALE.heading}
           </h2>

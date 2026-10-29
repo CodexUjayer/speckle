@@ -3,9 +3,11 @@
 /**
  * The static story — rendered when WebGL is unavailable.
  *
- * The same six chapters as quiet, flowing sections, each graded with its
- * theme accent, imagery instead of the live globe. No interaction is lost:
- * the compare concept becomes a static pair, every CTA remains real.
+ * The same six chapters as quiet, flowing sections, graded with the same
+ * film grammar as the main experience: word-mask title cards, dip-to-black
+ * cuts between the terrain systems, gradient seams instead of borders,
+ * and a drifting Ken Burns on the finale. No interaction is lost: the
+ * compare concept becomes a static pair, every CTA remains real.
  */
 
 import { useEffect, useRef } from "react";
@@ -52,7 +54,7 @@ function SectorBlock({ sector, first }: { sector: Sector; first: boolean }) {
       className="relative"
       style={{ ["--accent" as string]: sector.theme.accent }}
     >
-      <div className="relative h-[92vh] min-h-[560px] overflow-hidden">
+      <div className="relative h-[92svh] min-h-[560px] overflow-hidden">
         <div data-parallax className="absolute -inset-y-[8%] inset-x-0">
           <Image
             src={sector.image}
@@ -70,6 +72,16 @@ function SectorBlock({ sector, first }: { sector: Sector; first: boolean }) {
               ? "bg-gradient-to-r from-[#04070d]/90 via-[#04070d]/35 to-transparent"
               : "bg-gradient-to-l from-[#04070d]/90 via-[#04070d]/35 to-transparent"
           }`}
+        />
+        {/* dip-to-black cuts — each terrain fades in from and out to the
+            dark, the quiet cousin of the main experience's dissolves */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[14svh] bg-gradient-to-b from-[#04070d] to-transparent"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[16svh] bg-gradient-to-t from-[#04070d] to-transparent"
         />
         <div className="absolute inset-0 grain" aria-hidden />
         <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 sm:px-8">
@@ -127,19 +139,27 @@ function SectorBlock({ sector, first }: { sector: Sector; first: boolean }) {
 
 export default function StaticStory() {
   const headRef = useRef<HTMLDivElement>(null);
+  const ch4Ref = useRef<HTMLDivElement>(null);
   const evidenceRef = useRef<HTMLElement>(null);
+  const finaleRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (headRef.current) return cinematify(headRef.current);
   }, []);
   useEffect(() => {
+    if (ch4Ref.current) return cinematify(ch4Ref.current);
+  }, []);
+  useEffect(() => {
     if (evidenceRef.current) return cinematify(evidenceRef.current);
+  }, []);
+  useEffect(() => {
+    if (finaleRef.current) return cinematify(finaleRef.current);
   }, []);
 
   return (
     <main className="relative">
       {/* chapter I — hero */}
-      <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden bg-[#04070d]">
+      <section className="relative flex min-h-[92svh] items-center justify-center overflow-hidden bg-[#04070d]">
         <Image
           src="/fallback/hero-earth.jpg"
           alt=""
@@ -170,7 +190,7 @@ export default function StaticStory() {
         <div className="mx-auto max-w-2xl space-y-24">
           <div data-reveal>
             <p className="chapter-kicker">{CHAPTER_2.kicker}</p>
-            <h2 className="mt-4 font-display text-4xl font-light text-white">
+            <h2 data-words className="mt-4 font-display text-4xl font-light text-white">
               {CHAPTER_2.heading}
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#93a3ba]">
@@ -179,7 +199,7 @@ export default function StaticStory() {
           </div>
           <div data-reveal>
             <p className="chapter-kicker">{CHAPTER_3.kicker}</p>
-            <h2 className="mt-4 font-display text-4xl font-light text-white">
+            <h2 data-words className="mt-4 font-display text-4xl font-light text-white">
               {CHAPTER_3.heading}
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#93a3ba]">
@@ -190,36 +210,54 @@ export default function StaticStory() {
       </div>
 
       {/* chapter IV — systems */}
-      <div className="relative bg-[#04070d]">
-        <div className="relative mx-auto max-w-3xl px-5 pb-8 pt-24 text-center sm:px-8">
-          <p className="chapter-kicker text-[var(--accent)]">
+      <div ref={ch4Ref} className="relative bg-[#04070d]">
+        <div className="relative mx-auto max-w-3xl px-5 pb-10 pt-24 text-center sm:px-8">
+          <p data-reveal className="chapter-kicker text-[var(--accent)]">
             {CHAPTER_4_INTRO.kicker}
           </p>
-          <h2 className="mt-4 font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl">
+          <h2 data-words className="mt-4 font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl">
             {CHAPTER_4_INTRO.heading}
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#93a3ba]">
+          <p data-reveal className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#93a3ba]">
             {CHAPTER_4_INTRO.body}
           </p>
+          <div data-reveal aria-hidden className="mt-12 flex flex-col items-center gap-3">
+            <span className="text-[10px] font-medium uppercase tracking-[0.42em] text-white/55">
+              {CHAPTER_4_INTRO.cue}
+            </span>
+            <span className="relative block h-12 w-px overflow-hidden bg-white/15">
+              <span className="cue-line absolute left-0 top-0 h-4 w-px bg-white/80" />
+            </span>
+          </div>
         </div>
         {SECTORS.map((s, i) => (
           <SectorBlock key={s.id} sector={s} first={i === 0} />
         ))}
       </div>
 
-      {/* chapter V — evidence */}
+      {/* chapter V — evidence, melting up over the last terrain */}
       <section
         ref={evidenceRef}
         aria-labelledby="evidence-heading"
-        className="relative border-t border-white/[0.06] bg-[#050810]"
+        className="relative z-10 -mt-[24svh]"
         style={{ ["--accent" as string]: THEMES.evidence.accent }}
       >
-        <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
-          <p data-reveal className="chapter-kicker text-[var(--accent)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,8,16,0)_0svh,rgba(5,8,16,0.62)_14svh,#050810_24svh)]"
+        />
+        <div aria-hidden className="grain pointer-events-none absolute inset-0" />
+        <div className="relative z-[1] mx-auto max-w-6xl px-5 pb-28 pt-[calc(24svh+6rem)] sm:px-8">
+          <span
+            data-draw
+            aria-hidden
+            className="block h-px w-24 origin-left bg-[var(--accent)]/50"
+          />
+          <p data-reveal className="chapter-kicker mt-5 text-[var(--accent)]">
             {EVIDENCE.kicker}
           </p>
           <h2
-            data-reveal
+            data-words
             id="evidence-heading"
             className="mt-4 max-w-3xl font-display text-4xl font-light leading-[1.08] text-white sm:text-5xl"
           >
@@ -231,7 +269,12 @@ export default function StaticStory() {
 
           <div className="mt-16 grid gap-10 lg:grid-cols-3">
             {EVIDENCE.stages.map((st) => (
-              <div key={st.n} data-reveal>
+              <div key={st.n} data-reveal className="relative pt-6">
+                <span
+                  data-draw
+                  aria-hidden
+                  className="absolute left-0 top-0 block h-px w-full origin-left bg-gradient-to-r from-[var(--accent)]/55 via-white/10 to-transparent"
+                />
                 <p className="stage-number">{st.n}</p>
                 <h3 className="stage-title">{st.title}</h3>
                 <p className="stage-body">{st.body}</p>
@@ -260,10 +303,14 @@ export default function StaticStory() {
             <p className="chapter-kicker text-[var(--accent)]">
               {EVIDENCE.engineKicker}
             </p>
-            <h3 className="mt-3 font-display text-3xl font-light text-white sm:text-4xl">
+            <h3
+              data-words
+              className="mt-3 font-display text-3xl font-light text-white sm:text-4xl"
+            >
               {EVIDENCE.engineHeading}
             </h3>
             <ul
+              data-stagger
               className="mt-8 grid grid-cols-1 gap-x-10 sm:grid-cols-2 lg:grid-cols-3"
               aria-label="Engine pipelines"
             >
@@ -289,25 +336,46 @@ export default function StaticStory() {
       </section>
 
       {/* chapter VI — finale */}
-      <section className="relative overflow-hidden bg-[#04070d]">
+      <section
+        ref={finaleRef}
+        aria-labelledby="finale-heading"
+        className="relative overflow-hidden bg-[#04070d]"
+        style={{ ["--accent" as string]: THEMES.finale.accent }}
+      >
         <div
-          className="pointer-events-none absolute inset-0 opacity-50"
+          data-kenburns="0.16"
+          aria-hidden
+          className="absolute -inset-y-[6%] inset-x-0 opacity-50"
           style={{
             backgroundImage: "url(/landscapes/descent.webp)",
             backgroundSize: "cover",
             backgroundPosition: "center 62%",
           }}
-          aria-hidden
         />
-        <div className="relative z-10 mx-auto flex min-h-[80vh] max-w-3xl flex-col items-center justify-center px-5 py-24 text-center sm:px-8">
-          <p className="chapter-kicker">{FINALE.kicker}</p>
-          <h2 className="mt-5 font-display text-5xl font-light leading-[1.05] text-white sm:text-6xl">
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[26svh] bg-gradient-to-b from-[#050810] to-transparent"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[26svh] bg-gradient-to-t from-[#04070d] to-transparent"
+        />
+        <div aria-hidden className="grain pointer-events-none absolute inset-0" />
+        <div className="relative z-10 mx-auto flex min-h-[88svh] max-w-3xl flex-col items-center justify-center px-5 py-24 text-center sm:px-8">
+          <p data-reveal className="chapter-kicker">
+            {FINALE.kicker}
+          </p>
+          <h2
+            data-words
+            id="finale-heading"
+            className="mt-5 font-display text-5xl font-light leading-[1.05] text-white sm:text-6xl"
+          >
             {FINALE.heading}
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-[#a5b3c7] sm:text-base">
+          <p data-reveal className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-[#a5b3c7] sm:text-base">
             {FINALE.body}
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+          <div data-reveal className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
             <a
               href={FINALE.primary.href}
               target="_blank"

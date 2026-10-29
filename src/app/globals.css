@@ -103,7 +103,9 @@
     @apply bg-[#04070d] text-foreground;
     font-family: var(--font-motus-sans), ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "tnum" 1, "ss01" 1;
-    overflow-x: hidden;
+    /* clip (not hidden) — never creates a scroll container, so the pinned
+       terrain sequence can use position: sticky safely */
+    overflow-x: clip;
   }
   ::selection {
     background: rgba(143, 199, 242, 0.28);
@@ -151,6 +153,20 @@
     opacity: 0.05;
     mix-blend-mode: overlay;
     pointer-events: none;
+  }
+
+  /* title-card word masks — each word rises from its own overflow clip.
+     The padding/negative-margin pair keeps descenders (g, y, p) intact. */
+  .w-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+  .w-mask-i {
+    display: inline-block;
+    will-change: transform;
   }
 }
 
