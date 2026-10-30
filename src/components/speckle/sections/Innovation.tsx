@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Chapter VI — What makes MOTUS different.
+ * Chapter VI — What makes Speckle different.
  *
  * Opens as a title card, then pins into one continuous radar pass: a real
  * satellite scan plays as the full-bleed background while the three rules

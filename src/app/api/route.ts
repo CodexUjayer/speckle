@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   return NextResponse.json({
     status: "ok",
-    project: "MOTUS",
+    project: "Speckle",
     team: "Dancing with the SARs",
     event: "NASA Space Apps Challenge 2026",
     time: new Date().toISOString(),

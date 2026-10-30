@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MOTUS — the landing experience.
+ * Speckle — the landing experience.
  *
  * Two movements, one page. The story opens as a pinned WebGL scene: four
  * screens of scroll room carry the Earth chapters — the still globe, the
@@ -123,7 +123,7 @@ export default function Experience() {
     let ticking = false;
     const update = () => {
       ticking = false;
-      const spacer = document.getElementById("motus-story-spacer");
+      const spacer = document.getElementById("speckle-story-spacer");
       const storyH = spacer?.offsetHeight || window.innerHeight * STORY_SCREENS;
       storyState.scrollY = window.scrollY;
       storyState.storyP = clamp(window.scrollY / storyH);
@@ -228,7 +228,7 @@ export default function Experience() {
           2D chapters scroll up over the darkened canvas */}
       <main className="pointer-events-none relative z-10">
         <div
-          id="motus-story-spacer"
+          id="speckle-story-spacer"
           aria-hidden
           className="h-[400vh]"
         />

@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const fraunces = Fraunces({
-  variable: "--font-motus-display",
+  variable: "--font-speckle-display",
   style: ["normal", "italic"],
   axes: ["opsz"],
   subsets: ["latin"],
@@ -12,17 +12,17 @@ const fraunces = Fraunces({
 });
 
 const inter = Inter({
-  variable: "--font-motus-sans",
+  variable: "--font-speckle-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MOTUS · Earth is always changing",
+  title: "Speckle · Earth is always changing",
   description:
     "A cinematic journey from orbit into Earth's changing landscapes. Built for NASA Space Apps Challenge 2026, Dancing with the SARs.",
   keywords: [
-    "MOTUS",
+    "Speckle",
     "Earth observation",
     "SAR",
     "radar",
@@ -32,15 +32,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Dancing with the SARs team" }],
   openGraph: {
-    title: "MOTUS · Earth is always changing",
+    title: "Speckle · Earth is always changing",
     description:
       "A cinematic journey from orbit into Earth's changing landscapes, observed from space and measured in radar.",
-    siteName: "MOTUS",
+    siteName: "Speckle",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MOTUS · Earth is always changing",
+    title: "Speckle · Earth is always changing",
     description:
       "A cinematic journey from orbit into Earth's changing landscapes.",
   },

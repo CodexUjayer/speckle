@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The MOTUS footer — quiet, honest, minimal. Project context, real links,
+ * The Speckle footer — quiet, honest, minimal. Project context, real links,
  * required credits and a clear non-endorsement statement.
  */
 
@@ -43,7 +43,7 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-6">
             <p className="font-display text-2xl font-light tracking-[0.3em] text-white">
-              MOTUS
+              SPECKLE
             </p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
               {FOOTER.blurb}

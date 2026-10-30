@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The loading veil — a dark, quiet screen with the MOTUS wordmark and a
+ * The loading veil — a dark, quiet screen with the Speckle wordmark and a
  * thin progress line. It lifts as soon as the Earth has rendered its first
  * frame, so the visitor never sees a broken globe or a flashing texture.
  */
@@ -45,13 +45,13 @@ export default function Loader({
   return (
     <div
       role="status"
-      aria-label="Loading the MOTUS experience"
+      aria-label="Loading the Speckle experience"
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#04070d] transition-opacity duration-[900ms] ease-out ${
         leaving ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
       <p className="font-display text-4xl font-light tracking-[0.32em] text-white/90">
-        MOTUS
+        SPECKLE
       </p>
       <p className="mt-3 text-[10px] uppercase tracking-[0.4em] text-[#66788f]">
         Establishing orbit

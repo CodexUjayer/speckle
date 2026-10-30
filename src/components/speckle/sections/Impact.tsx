@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Chapter IX — What MOTUS is built to make possible.
+ * Chapter IX — What Speckle is built to make possible.
  *
  * A breathing chapter between two heavy ones: three audiences in quiet
  * rows, then the life of an answer drawn as a single line — event,

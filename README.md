@@ -1,6 +1,6 @@
-# MOTUS
+# Speckle
 
-The cinematic landing page for **MOTUS**, the satellite hazard-detection engine built by
+The cinematic landing page for **Speckle**, the satellite hazard-detection engine built by
 team **Dancing with the SARs** for the **NASA Space Apps Challenge 2026**.
 
 The page tells one continuous story in eleven chapters: from orbit, down through the
@@ -41,7 +41,7 @@ Requires Node 20+ (or Bun 1.1+). No environment variables are needed to run the 
 This is the short tour for anyone joining the project. Almost everything you will
 want to change lives in **one file**.
 
-### All words on the page: `src/components/motus/data.ts`
+### All words on the page: `src/components/speckle/data.ts`
 
 Every headline, paragraph, chapter label, button label, image alt text, footnote and
 disclaimer is defined here as plain data. You should almost never need to touch a
@@ -63,7 +63,7 @@ component to change text. The main exports:
 
 All external destinations (engine repo, architecture doc, Space Apps) are centralized
 in `LINKS` at the top of `data.ts`. The "Start exploring" button follows
-`NEXT_PUBLIC_MOTUS_APP_URL` if you set it (for example `/console` once the app UI is
+`NEXT_PUBLIC_SPECKLE_APP_URL` if you set it (for example `/console` once the app UI is
 deployed); until then it points at the repository, which is the honest destination.
 
 ### Look and feel: `src/app/globals.css`
@@ -71,9 +71,9 @@ deployed); until then it points at the repository, which is the honest destinati
 The whole site shares one accent and one deep-space dark (see the `THEMES` map in
 `data.ts`). Fonts, the film grain, the vignette, the architecture slab styles and the
 chapter spacing all live in `globals.css`. The layout of each chapter is in
-`src/components/motus/sections/*.tsx`.
+`src/components/speckle/sections/*.tsx`.
 
-### The 3D opening: `src/components/motus/earth/`
+### The 3D opening: `src/components/speckle/earth/`
 
 `Stage.tsx` (camera and scene), `shaders.ts` (the Earth and cloud materials),
 `choreo.ts` (what the overlays read). Textures are in `public/textures/`.
@@ -82,11 +82,11 @@ chapter spacing all live in `globals.css`. The layout of each chapter is in
 
 Chapters VI to XI are mounted in **two** places, and both must stay in sync:
 
-- `src/components/motus/ScrollChapters.tsx` (the full experience)
-- `src/components/motus/StaticStory.tsx` (the no-WebGL fallback)
+- `src/components/speckle/ScrollChapters.tsx` (the full experience)
+- `src/components/speckle/StaticStory.tsx` (the no-WebGL fallback)
 
 Add the copy to `data.ts` first, then mount the section component in both files in the
-same order. The chapter kickers ("Chapter VII · How MOTUS is built") are just strings,
+same order. The chapter kickers ("Chapter VII · How Speckle is built") are just strings,
 so renumbering is a copy edit.
 
 ---
@@ -95,7 +95,7 @@ so renumbering is a copy edit.
 
 ```
 src/app/page.tsx            mounts <Experience/>
-src/components/motus/
+src/components/speckle/
   Experience.tsx            the shell: loader, gate, Earth stage, story
   scroll.ts                 the scroll timeline (one damped progress for everything)
   Loader.tsx                the dark loading veil
@@ -152,7 +152,7 @@ A few principles worth keeping as the page evolves:
 ## Deploying
 
 Any Node host that runs Next.js 16 works (Vercel is the path of least resistance).
-Set `NEXT_PUBLIC_MOTUS_APP_URL` at deploy time to send the final call-to-action to the
+Set `NEXT_PUBLIC_SPECKLE_APP_URL` at deploy time to send the final call-to-action to the
 real console instead of the repository. Nothing else is required.
 
 The page is heavy on media (WebGL textures, one background video, WebP landscapes), so

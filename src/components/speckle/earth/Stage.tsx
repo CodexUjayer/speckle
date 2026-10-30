@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The MOTUS stage — one WebGL canvas for the Earth chapters.
+ * The Speckle stage — one WebGL canvas for the Earth chapters.
  *
  * Chapters I–III live here as a pinned scene: a still, photorealistic
  * globe that only moves when the visitor scrolls (rotation is a story

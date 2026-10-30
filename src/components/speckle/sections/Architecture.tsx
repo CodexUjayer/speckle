@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Chapter VII — How MOTUS is built.
+ * Chapter VII — How Speckle is built.
  *
  * The engine as one machine you can take apart: five thin, solid layers
  * that sit as a stack and explode apart in 3D as the visitor scrolls,

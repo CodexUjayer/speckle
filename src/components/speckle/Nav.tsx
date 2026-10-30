@@ -12,7 +12,7 @@ import { ArrowUpRight, Github } from "lucide-react";
 import { LINKS } from "./data";
 
 function jumpToTop() {
-  const spacer = document.getElementById("motus-story-spacer");
+  const spacer = document.getElementById("speckle-story-spacer");
   const storyH = spacer?.offsetHeight ?? window.innerHeight * 9.5;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -44,7 +44,7 @@ export default function Nav() {
           onClick={jumpToTop}
           className="font-display text-lg font-medium tracking-[0.34em] text-white transition-opacity hover:opacity-70"
         >
-          MOTUS
+          SPECKLE
         </button>
 
         <div className="flex items-center gap-5 sm:gap-7">

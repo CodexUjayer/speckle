@@ -1,5 +1,5 @@
 /**
- * MOTUS — cinematic landing page content, themes & integration map.
+ * Speckle — cinematic landing page content, themes & integration map.
  *
  * All hazard-pipeline facts below are extracted verbatim from the
  * Dancing_With_SARs repository (engine/pipelines/…/manifest.yaml) so the
@@ -13,11 +13,11 @@ export const REPO_URL = "https://github.com/Tech-Doomsday/Dancing_With_SARs";
 /**
  * Entry point of the real application (the hazard console built with the
  * engine). When this landing page is merged into the repository, set
- * NEXT_PUBLIC_MOTUS_APP_URL to the deployed app-ui entry (e.g. "/console").
+ * NEXT_PUBLIC_SPECKLE_APP_URL to the deployed app-ui entry (e.g. "/console").
  * Until then the repository itself is the honest destination.
  */
 export const APP_URL =
-  process.env.NEXT_PUBLIC_MOTUS_APP_URL?.trim() || REPO_URL;
+  process.env.NEXT_PUBLIC_SPECKLE_APP_URL?.trim() || REPO_URL;
 
 export const LINKS = {
   app: APP_URL,
@@ -54,12 +54,12 @@ export const THEMES: Record<string, ChapterTheme> = {
   river: { accent: "#a9bfd6", bg: "#04070d", label: "Where rivers redraw the land" },
   evidence: { accent: "#a9bfd6", bg: "#04070d", label: "From observation to evidence" },
   engine: { accent: "#a9bfd6", bg: "#04070d", label: "The engine" },
-  innovation: { accent: "#a9bfd6", bg: "#04070d", label: "What makes MOTUS different" },
-  architecture: { accent: "#a9bfd6", bg: "#04070d", label: "How MOTUS is built" },
+  innovation: { accent: "#a9bfd6", bg: "#04070d", label: "What makes Speckle different" },
+  architecture: { accent: "#a9bfd6", bg: "#04070d", label: "How Speckle is built" },
   correlation: { accent: "#a9bfd6", bg: "#04070d", label: "From results to reasons" },
   impact: { accent: "#a9bfd6", bg: "#04070d", label: "What it makes possible" },
   home: { accent: "#a9bfd6", bg: "#04070d", label: "The view from home" },
-  finale: { accent: "#a9bfd6", bg: "#04070d", label: "Enter MOTUS" },
+  finale: { accent: "#a9bfd6", bg: "#04070d", label: "Enter Speckle" },
 };
 
 /** theme key → story progress ranges over the pinned Earth room (kept in sync with TL) */
@@ -75,7 +75,7 @@ export const THEME_TRACK: { key: string; start: number; end: number }[] = [
 
 export const HERO = {
   eyebrow: "NASA Space Apps Challenge 2026 · Dancing with the SARs",
-  title: "MOTUS",
+  title: "Speckle",
   subtitle: "Earth is always changing.",
   body: "Discover the changes shaping our planet, observed from space.",
   cue: "Scroll to begin",
@@ -264,14 +264,14 @@ export const EVIDENCE = {
 } as const;
 
 /* ------------------------------------------------------------------ */
-/* Chapter VI — Innovation: what actually makes MOTUS different        */
+/* Chapter VI — Innovation: what actually makes Speckle different        */
 /* (facts from docs/ARCHITECTURE.md §1–§2)                             */
 /* ------------------------------------------------------------------ */
 
 export const INNOVATION = {
-  kicker: "Chapter VI · What makes MOTUS different",
+  kicker: "Chapter VI · What makes Speckle different",
   heading: "Three rules, written into the code.",
-  body: "Most platforms show you a picture and let you guess. We built MOTUS the other way around: three rules, enforced by the architecture itself rather than promised in a readme. Scroll through one radar pass to read them.",
+  body: "Most platforms show you a picture and let you guess. We built Speckle the other way around: three rules, enforced by the architecture itself rather than promised in a readme. Scroll through one radar pass to read them.",
   cue: "Follow the pass",
   beats: [
     {
@@ -325,7 +325,7 @@ export interface ArchLayer {
 }
 
 export const ARCHITECTURE = {
-  kicker: "Chapter VII · How MOTUS is built",
+  kicker: "Chapter VII · How Speckle is built",
   heading: "One machine, in five stages.",
   body: "The engine reads in one direction: raw satellite data goes in at the bottom, answers come out at the top. Five stages, each doing exactly one job. Scroll to take it apart.",
   cue: "Take it apart",
@@ -417,7 +417,7 @@ export interface Correlation {
 export const CORRELATIONS = {
   kicker: "Chapter VIII · From results to reasons",
   heading: "Every result is the start of a chain.",
-  body: "A measurement is not a conclusion. An event leaves a signature in the data, and the signature implies consequences on the ground. Following that chain from end to end is the science MOTUS is built for.",
+  body: "A measurement is not a conclusion. An event leaves a signature in the data, and the signature implies consequences on the ground. Following that chain from end to end is the science Speckle is built for.",
   chainLabels: ["Event", "Signature", "Consequence"],
   chains: <Correlation[]>[
     {
@@ -545,11 +545,11 @@ export const CORRELATIONS = {
 } as const;
 
 /* ------------------------------------------------------------------ */
-/* Chapter IX — Impact: what MOTUS is built to make possible           */
+/* Chapter IX — Impact: what Speckle is built to make possible           */
 /* ------------------------------------------------------------------ */
 
 export const IMPACT = {
-  kicker: "Chapter IX · What MOTUS is built to make possible",
+  kicker: "Chapter IX · What Speckle is built to make possible",
   heading: "Answers people can act on.",
   body: "A verdict is only worth having if someone can do something with it. Three audiences shaped every design decision in the engine.",
   rows: [
@@ -557,7 +557,7 @@ export const IMPACT = {
       n: "01",
       who: "For responders",
       title: "Evidence that arrives with its provenance.",
-      body: "When the ground breaks or the storm makes landfall, a disaster team needs a map it can defend. Every MOTUS verdict carries what was measured, how confident it is, and what to check next. There is no black box between the disaster and the decision.",
+      body: "When the ground breaks or the storm makes landfall, a disaster team needs a map it can defend. Every Speckle verdict carries what was measured, how confident it is, and what to check next. There is no black box between the disaster and the decision.",
     },
     {
       n: "02",
@@ -569,7 +569,7 @@ export const IMPACT = {
       n: "03",
       who: "For communities & planners",
       title: "The slow changes, watched patiently.",
-      body: "Subsiding ground, retreating banks, thinning forest, growing floodplains. Change that unfolds over years is the hardest to see and the most important to plan around, so MOTUS is built to watch it year after year and report it with its uncertainty attached.",
+      body: "Subsiding ground, retreating banks, thinning forest, growing floodplains. Change that unfolds over years is the hardest to see and the most important to plan around, so Speckle is built to watch it year after year and report it with its uncertainty attached.",
     },
   ],
   lifecycleKicker: "The life of an answer",
@@ -581,7 +581,7 @@ export const IMPACT = {
     { label: "Response", note: "a map that can defend itself" },
   ],
   footnote:
-    "MOTUS is young. These are the goals it is engineered toward, and we state them with the same care as its verdicts.",
+    "Speckle is young. These are the goals it is engineered toward, and we state them with the same care as its verdicts.",
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -645,11 +645,11 @@ export const HOME = {
 } as const;
 
 export const FINALE = {
-  kicker: "Chapter XI · Enter MOTUS",
+  kicker: "Chapter XI · Enter Speckle",
   heading: "The story is written on Earth.",
   body: "Explore the observations. Investigate the changes. Understand what the evidence can tell us.",
   primary: { label: "Start exploring", href: LINKS.app },
-  secondary: { label: "How MOTUS works", href: LINKS.architecture },
+  secondary: { label: "How Speckle works", href: LINKS.architecture },
 } as const;
 
 export const FOOTER = {

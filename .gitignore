@@ -52,7 +52,7 @@ prompt
 server.log
 
 # ---------------------------------------------------------------------------
-# MOTUS repo hygiene — sandbox & dev artifacts, never push these
+# Speckle repo hygiene — sandbox & dev artifacts, never push these
 # ---------------------------------------------------------------------------
 
 # agent/tool working artifacts (screenshots taken while verifying the page)

@@ -840,7 +840,7 @@ export default function ScrollChapters() {
         </div>
       </section>
 
-      {/* chapter VI — what makes MOTUS different (the SAR pass) */}
+      {/* chapter VI — what makes Speckle different (the SAR pass) */}
       <Innovation />
 
       {/* chapter VII — the architecture, taken apart */}

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MOTUS scroll system — one story, one progress.
+ * Speckle scroll system — one story, one progress.
  *
  * The page opens as a pinned WebGL scene: a 4-screen scroll room carries the
  * Earth chapters (I–III) and ends diving into a cloud veil that closes to
@@ -108,7 +108,7 @@ export const storyState: StoryState = {
 
 if (typeof window !== "undefined") {
   // debug handle for verification tooling
-  (window as unknown as Record<string, unknown>).__motus = storyState;
+  (window as unknown as Record<string, unknown>).__speckle = storyState;
 }
 
 type Driver = (smoothP: number) => void;

@@ -1,5 +1,5 @@
 /**
- * MOTUS shaders.
+ * Speckle shaders.
  *
  * Earth — NASA Blue Marble, graded like cinema: brighter day side with a
  * soft filmic shoulder, warm city lights on the night side, a tight ocean
