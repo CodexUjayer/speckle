@@ -42,20 +42,23 @@ export interface ChapterTheme {
   label: string;
 }
 
+/* One film, one grade — the whole site shares a single accent and a
+   single deep-space dark, so every chapter reads as part of the same
+   story instead of its own colour scheme. */
 export const THEMES: Record<string, ChapterTheme> = {
   space: { accent: "#a9bfd6", bg: "#04070d", label: "A world seen from space" },
   move: { accent: "#a9bfd6", bg: "#04070d", label: "The planet begins to move" },
-  descent: { accent: "#b8c8d4", bg: "#05080e", label: "Descending into the landscape" },
-  quake: { accent: "#d9a066", bg: "#0d0a08", label: "When the ground shifts" },
-  water: { accent: "#7fc4c9", bg: "#060d12", label: "When water reshapes the land" },
-  river: { accent: "#9ab87a", bg: "#070c09", label: "Where rivers redraw the land" },
-  evidence: { accent: "#c2cdd9", bg: "#050810", label: "From observation to evidence" },
-  engine: { accent: "#c2cdd9", bg: "#050810", label: "The engine" },
-  innovation: { accent: "#d9c08a", bg: "#0c0b07", label: "What makes MOTUS different" },
-  architecture: { accent: "#8fb8a8", bg: "#060c0a", label: "How MOTUS is built" },
-  correlation: { accent: "#c98d7e", bg: "#0f0806", label: "From results to reasons" },
-  impact: { accent: "#c2cdd9", bg: "#050810", label: "What it makes possible" },
-  home: { accent: "#8fc9a4", bg: "#050b08", label: "The view from home" },
+  descent: { accent: "#a9bfd6", bg: "#04070d", label: "Descending into the landscape" },
+  quake: { accent: "#a9bfd6", bg: "#04070d", label: "When the ground shifts" },
+  water: { accent: "#a9bfd6", bg: "#04070d", label: "When water reshapes the land" },
+  river: { accent: "#a9bfd6", bg: "#04070d", label: "Where rivers redraw the land" },
+  evidence: { accent: "#a9bfd6", bg: "#04070d", label: "From observation to evidence" },
+  engine: { accent: "#a9bfd6", bg: "#04070d", label: "The engine" },
+  innovation: { accent: "#a9bfd6", bg: "#04070d", label: "What makes MOTUS different" },
+  architecture: { accent: "#a9bfd6", bg: "#04070d", label: "How MOTUS is built" },
+  correlation: { accent: "#a9bfd6", bg: "#04070d", label: "From results to reasons" },
+  impact: { accent: "#a9bfd6", bg: "#04070d", label: "What it makes possible" },
+  home: { accent: "#a9bfd6", bg: "#04070d", label: "The view from home" },
   finale: { accent: "#a9bfd6", bg: "#04070d", label: "Enter MOTUS" },
 };
 
@@ -437,7 +440,7 @@ export const CORRELATIONS = {
         { code: "3.04", name: "landslide" },
         { code: "3.17", name: "tsunami_ocean_evidence", live: true },
       ],
-      accent: "#d9a066",
+      accent: "#a9bfd6",
     },
     {
       id: "corr-salinity",
@@ -458,7 +461,7 @@ export const CORRELATIONS = {
         { code: "3.07", name: "flood_inundation" },
         { code: "3.11", name: "coastal_erosion" },
       ],
-      accent: "#7fc4c9",
+      accent: "#a9bfd6",
     },
     {
       id: "corr-forest",
@@ -478,7 +481,7 @@ export const CORRELATIONS = {
         { code: "3.08", name: "deforestation" },
         { code: "3.04", name: "landslide" },
       ],
-      accent: "#9ab87a",
+      accent: "#a9bfd6",
     },
     {
       id: "corr-urban",
@@ -498,7 +501,7 @@ export const CORRELATIONS = {
         { code: "3.12", name: "urban_damage" },
         { code: "3.07", name: "flood_inundation" },
       ],
-      accent: "#d9c08a",
+      accent: "#a9bfd6",
     },
     {
       id: "corr-oil",
@@ -517,7 +520,7 @@ export const CORRELATIONS = {
         { code: "3.15", name: "oil_spill" },
         { code: "3.11", name: "coastal_erosion" },
       ],
-      accent: "#c98d7e",
+      accent: "#a9bfd6",
     },
     {
       id: "corr-river",
@@ -536,7 +539,7 @@ export const CORRELATIONS = {
         { code: "3.10", name: "river_erosion" },
         { code: "3.07", name: "flood_inundation" },
       ],
-      accent: "#8fc9a4",
+      accent: "#a9bfd6",
     },
   ],
 } as const;

@@ -3,25 +3,21 @@
 /**
  * Chapter VI — What makes MOTUS different.
  *
- * Opens as a title card, then pins into one continuous radar pass: the
- * 3D satellite crosses the frame while the three rules of the engine
- * arrive and leave around the sweep, exactly like the terrain words of
- * chapter IV. Closes with the open-science ledger. When WebGL is
- * unavailable or motion is reduced, the same beats play as quiet,
- * flowing sections.
+ * Opens as a title card, then pins into one continuous radar pass: a real
+ * satellite scan plays as the full-bleed background while the three rules
+ * of the engine arrive and leave around the pass, exactly like the terrain
+ * words of chapter IV. Closes with the open-science ledger. When motion is
+ * reduced, the same beats play as quiet, flowing sections.
  */
 
 import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
 import { INNOVATION, THEMES } from "../data";
 import { cinematify, prefersReducedMotion } from "./anim";
 
-const SarSweep = dynamic(() => import("./SarSweep"), {
-  ssr: false,
-  loading: () => null,
-});
+const PASS_VIDEO = "/media/sar-pass.mp4";
+const PASS_POSTER = "/media/sar-pass-poster.jpg";
 
 /* ------------------------------------------------------------------ */
 /* the pinned pass — one sweep, three rules                             */
@@ -29,13 +25,14 @@ const SarSweep = dynamic(() => import("./SarSweep"), {
 
 function SweepSequence() {
   const root = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const beats = useRef<Array<HTMLDivElement | null>>([]);
   const barFill = useRef<HTMLSpanElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
   const progress = useRef({ p: 0 });
   const [near, setNear] = useState(false);
 
-  /* mount the canvas only as the sequence approaches the viewport */
+  /* mount the video only as the sequence approaches the viewport */
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -46,6 +43,23 @@ function SweepSequence() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  /* the background scan — plays while the pass is on stage, holds its
+     breath the moment the visitor scrolls on (or hides the tab) */
+  useEffect(() => {
+    const v = video.current;
+    if (!v) return;
+    const vis = () => {
+      if (near && !document.hidden) {
+        v.play().catch(() => undefined);
+      } else {
+        v.pause();
+      }
+    };
+    vis();
+    document.addEventListener("visibilitychange", vis);
+    return () => document.removeEventListener("visibilitychange", vis);
+  }, [near]);
 
   useEffect(() => {
     const b0 = beats.current[0];
@@ -105,11 +119,20 @@ function SweepSequence() {
       className="relative z-[1]"
       style={{ height: "352svh" }}
     >
-      <div className="sticky top-0 h-svh overflow-hidden bg-[#0c0b07]">
+      <div className="sticky top-0 h-svh overflow-hidden bg-[#04070d]">
+        {/* the background scan — the real pass, full frame */}
         {near ? (
-          <div className="absolute inset-0" aria-hidden>
-            <SarSweep progress={progress} active={near} />
-          </div>
+          <video
+            ref={video}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={PASS_VIDEO}
+            poster={PASS_POSTER}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden
+          />
         ) : null}
 
         {/* the grade — vignette and grain, cut from the same film */}
@@ -118,39 +141,40 @@ function SweepSequence() {
           className="pointer-events-none absolute inset-0 z-[6]"
           style={{
             background:
-              "radial-gradient(ellipse 120% 90% at 50% 45%, rgba(12,11,7,0) 50%, rgba(12,11,7,0.34) 84%, rgba(12,11,7,0.62) 100%)",
+              "radial-gradient(ellipse 120% 90% at 50% 45%, rgba(4,7,13,0) 50%, rgba(4,7,13,0.34) 84%, rgba(4,7,13,0.62) 100%)",
           }}
         />
         <div
           aria-hidden
           className="grain pointer-events-none absolute inset-0 z-[6] opacity-70"
         />
-        {/* scrims so the words always read over the render — edges kept
+        {/* scrims so the words always read over the scan — edges kept
             quiet on both text sides; the middle stays open for the pass.
             On narrow screens the beats run full-width, so the whole
             scene sits a step further back. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-[6] bg-[#0c0b07]/40 lg:hidden"
+          className="pointer-events-none absolute inset-0 z-[6] bg-[#04070d]/40 lg:hidden"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 z-[7] w-[44%] bg-gradient-to-r from-[#0c0b07]/58 via-[#0c0b07]/20 to-transparent"
+          className="pointer-events-none absolute inset-y-0 left-0 z-[7] w-[44%] bg-gradient-to-r from-[#04070d]/58 via-[#04070d]/20 to-transparent"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 z-[7] w-[44%] bg-gradient-to-l from-[#0c0b07]/58 via-[#0c0b07]/20 to-transparent"
+          className="pointer-events-none absolute inset-y-0 right-0 z-[7] w-[44%] bg-gradient-to-l from-[#04070d]/58 via-[#04070d]/20 to-transparent"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-[16svh] bg-gradient-to-b from-[#0c0b07]/88 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-[16svh] bg-gradient-to-b from-[#04070d]/88 to-transparent"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[15svh] bg-gradient-to-t from-[#0c0b07]/88 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[15svh] bg-gradient-to-t from-[#04070d]/88 to-transparent"
         />
 
-        {/* the rules — one on stage at a time, beside the sweep */}
+        {/* the rules — one on stage at a time, beside the pass. The
+            container never traps the wheel: it chains to the page. */}
         {INNOVATION.beats.map((b, i) => (
           <div
             key={b.rule}
@@ -158,7 +182,7 @@ function SweepSequence() {
               beats.current[i] = el;
             }}
             inert={i !== 0}
-            className="absolute inset-0 z-10 overflow-y-auto overscroll-contain"
+            className="absolute inset-0 z-10 overflow-y-auto"
             style={{ pointerEvents: i === 0 ? "auto" : "none" }}
           >
             <div className="flex min-h-full items-center py-8">
@@ -169,10 +193,10 @@ function SweepSequence() {
               >
                 <div className="max-w-md">
                   <p className="chapter-kicker text-[var(--accent)]">{b.rule}</p>
-                  <h3 className="mt-3 font-display text-3xl font-light leading-[1.08] text-white [text-shadow:0_2px_28px_rgba(12,11,7,0.92)] sm:text-4xl">
+                  <h3 className="mt-3 font-display text-3xl font-light leading-[1.08] text-white [text-shadow:0_2px_28px_rgba(4,7,13,0.92)] sm:text-4xl">
                     {b.title}
                   </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-white/78 [text-shadow:0_1px_16px_rgba(12,11,7,0.95)] sm:text-[15px]">
+                  <p className="mt-4 text-sm leading-relaxed text-white/78 [text-shadow:0_1px_16px_rgba(4,7,13,0.95)] sm:text-[15px]">
                     {b.body}
                   </p>
                 </div>
@@ -203,7 +227,7 @@ function SweepSequence() {
 }
 
 /* ------------------------------------------------------------------ */
-/* the quiet beats — reduced motion, or no WebGL                        */
+/* the quiet beats — reduced motion                                      */
 /* ------------------------------------------------------------------ */
 
 function QuietBeats() {
@@ -234,11 +258,11 @@ function QuietBeats() {
 /* the chapter                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function Innovation({ webgl = false }: { webgl?: boolean }) {
+export default function Innovation() {
   const openerRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLDivElement>(null);
   const [reduced] = useState(() => prefersReducedMotion());
-  const live = webgl && !reduced;
+  const live = !reduced;
 
   useEffect(() => {
     if (openerRef.current) return cinematify(openerRef.current);
@@ -251,13 +275,13 @@ export default function Innovation({ webgl = false }: { webgl?: boolean }) {
     <section
       id="innovation"
       aria-labelledby="innovation-heading"
-      className="relative bg-[#0c0b07]"
+      className="relative bg-[#04070d]"
       style={{ ["--accent" as string]: THEMES.innovation.accent }}
     >
       {/* the seam — melting up out of the evidence dark */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#050810_0svh,rgba(12,11,7,0.55)_12svh,#0c0b07_26svh)]"
+        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#04070d_0svh,rgba(4,7,13,0.55)_12svh,#04070d_26svh)]"
       />
       {/* an ambient wash of the chapter accent, breathing at the top */}
       <div

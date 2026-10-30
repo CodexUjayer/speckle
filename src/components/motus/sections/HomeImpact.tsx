@@ -75,7 +75,7 @@ export default function HomeImpact() {
     <section
       id="bangladesh"
       aria-labelledby="bangladesh-heading"
-      className="relative bg-[#050b08]"
+      className="relative bg-[#04070d]"
       style={{ ["--accent" as string]: THEMES.home.accent }}
     >
       {/* the cover — the delta, full frame */}
@@ -93,15 +93,15 @@ export default function HomeImpact() {
         {/* melting out of the impact dark above, into the chapter dark below */}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[24svh] bg-gradient-to-b from-[#050810] via-[#050810]/45 to-transparent"
+          className="absolute inset-x-0 top-0 h-[24svh] bg-gradient-to-b from-[#04070d] via-[#04070d]/45 to-transparent"
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[30svh] bg-gradient-to-t from-[#050b08] via-[#050b08]/55 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-[30svh] bg-gradient-to-t from-[#04070d] via-[#04070d]/55 to-transparent"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-[#050b08]/25"
+          className="absolute inset-0 bg-[#04070d]/25"
         />
         <div aria-hidden className="grain pointer-events-none absolute inset-0" />
 
@@ -112,13 +112,13 @@ export default function HomeImpact() {
           <h2
             data-words
             id="bangladesh-heading"
-            className="mt-5 max-w-3xl font-display text-4xl font-light leading-[1.08] text-white [text-shadow:0_2px_34px_rgba(3,6,5,0.8)] sm:text-5xl"
+            className="mt-5 max-w-3xl font-display text-4xl font-light leading-[1.08] text-white [text-shadow:0_2px_34px_rgba(4,7,13,0.8)] sm:text-5xl"
           >
             {HOME.heading}
           </h2>
           <p
             data-reveal
-            className="mt-6 max-w-xl text-sm leading-relaxed text-white/78 [text-shadow:0_1px_18px_rgba(3,6,5,0.9)] sm:text-[15px]"
+            className="mt-6 max-w-xl text-sm leading-relaxed text-white/78 [text-shadow:0_1px_18px_rgba(4,7,13,0.9)] sm:text-[15px]"
           >
             {HOME.body}
           </p>

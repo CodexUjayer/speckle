@@ -1,0 +1,660 @@
+     1→/**
+     2→ * MOTUS — cinematic landing page content, themes & integration map.
+     3→ *
+     4→ * All hazard-pipeline facts below are extracted verbatim from the
+     5→ * Dancing_With_SARs repository (engine/pipelines/…/manifest.yaml) so the
+     6→ * landing page never claims a module that does not exist.
+     7→ */
+     8→
+     9→import { TL } from "./scroll";
+    10→
+    11→export const REPO_URL = "https://github.com/Tech-Doomsday/Dancing_With_SARs";
+    12→
+    13→/**
+    14→ * Entry point of the real application (the hazard console built with the
+    15→ * engine). When this landing page is merged into the repository, set
+    16→ * NEXT_PUBLIC_MOTUS_APP_URL to the deployed app-ui entry (e.g. "/console").
+    17→ * Until then the repository itself is the honest destination.
+    18→ */
+    19→export const APP_URL =
+    20→  process.env.NEXT_PUBLIC_MOTUS_APP_URL?.trim() || REPO_URL;
+    21→
+    22→export const LINKS = {
+    23→  app: APP_URL,
+    24→  earthquakes: APP_URL,
+    25→  hurricanes: `${REPO_URL}/tree/main/engine/pipelines/flood_inundation`,
+    26→  erosion: `${REPO_URL}/tree/main/engine/pipelines/river_erosion`,
+    27→  architecture: `${REPO_URL}/blob/main/docs/ARCHITECTURE.md`,
+    28→  repo: REPO_URL,
+    29→  spaceapps: "https://www.spaceappschallenge.org/",
+    30→  nasaVisibleEarth: "https://visibleearth.nasa.gov/",
+    31→} as const;
+    32→
+    33→/* ------------------------------------------------------------------ */
+    34→/* Chapter themes — each chapter grades the whole page                 */
+    35→/* ------------------------------------------------------------------ */
+    36→
+    37→export interface ChapterTheme {
+    38→  /** accent for kickers, rails, ticks and focus rings */
+    39→  accent: string;
+    40→  /** deep background the 3D fog fades toward */
+    41→  bg: string;
+    42→  label: string;
+    43→}
+    44→
+    45→export const THEMES: Record<string, ChapterTheme> = {
+    46→  space: { accent: "#a9bfd6", bg: "#04070d", label: "A world seen from space" },
+    47→  move: { accent: "#a9bfd6", bg: "#04070d", label: "The planet begins to move" },
+    48→  descent: { accent: "#b8c8d4", bg: "#05080e", label: "Descending into the landscape" },
+    49→  quake: { accent: "#d9a066", bg: "#0d0a08", label: "When the ground shifts" },
+    50→  water: { accent: "#7fc4c9", bg: "#060d12", label: "When water reshapes the land" },
+    51→  river: { accent: "#9ab87a", bg: "#070c09", label: "Where rivers redraw the land" },
+    52→  evidence: { accent: "#c2cdd9", bg: "#050810", label: "From observation to evidence" },
+    53→  engine: { accent: "#c2cdd9", bg: "#050810", label: "The engine" },
+    54→  innovation: { accent: "#d9c08a", bg: "#0c0b07", label: "What makes MOTUS different" },
+    55→  architecture: { accent: "#8fb8a8", bg: "#060c0a", label: "How MOTUS is built" },
+    56→  correlation: { accent: "#c98d7e", bg: "#0f0806", label: "From results to reasons" },
+    57→  impact: { accent: "#c2cdd9", bg: "#050810", label: "What it makes possible" },
+    58→  home: { accent: "#8fc9a4", bg: "#050b08", label: "The view from home" },
+    59→  finale: { accent: "#a9bfd6", bg: "#04070d", label: "Enter MOTUS" },
+    60→};
+    61→
+    62→/** theme key → story progress ranges over the pinned Earth room (kept in sync with TL) */
+    63→export const THEME_TRACK: { key: string; start: number; end: number }[] = [
+    64→  { key: "space", start: 0, end: TL.ch2.start },
+    65→  { key: "move", start: TL.ch2.start, end: TL.ch3.start },
+    66→  { key: "descent", start: TL.ch3.start, end: 1.01 },
+    67→];
+    68→
+    69→/* ------------------------------------------------------------------ */
+    70→/* Story copy                                                          */
+    71→/* ------------------------------------------------------------------ */
+    72→
+    73→export const HERO = {
+    74→  eyebrow: "NASA Space Apps Challenge 2026 · Dancing with the SARs",
+    75→  title: "MOTUS",
+    76→  subtitle: "Earth is always changing.",
+    77→  body: "Discover the changes shaping our planet, observed from space.",
+    78→  cue: "Scroll to begin",
+    79→} as const;
+    80→
+    81→export const CHAPTER_2 = {
+    82→  kicker: "Chapter II — The planet begins to move",
+    83→  heading: "A changing planet leaves evidence.",
+    84→  body: "Turn the globe and the record appears — coasts drift, ground lifts, rivers wander. Satellite radar reads that record even through cloud and darkness.",
+    85→} as const;
+    86→
+    87→export const CHAPTER_3 = {
+    88→  kicker: "Chapter III — Descending into the landscape",
+    89→  heading: "Every landscape tells a different story.",
+    90→  body: "Leave orbit and fall toward the surface — from a whole planet to a single ridge, a single shoreline, a single river bend.",
+    91→} as const;
+    92→
+    93→export const CHAPTER_4_INTRO = {
+    94→  kicker: "Chapter IV — The changing systems",
+    95→  heading: "Discover the Earth’s changing systems.",
+    96→  body: "The land below is the engine’s field of view. Keep scrolling — the terrain itself will carry you between them.",
+    97→  cue: "Continue the descent",
+    98→} as const;
+    99→
+   100→/* ------------------------------------------------------------------ */
+   101→/* Sectors (status reflects the actual engine/pipelines state)         */
+   102→/* ------------------------------------------------------------------ */
+   103→
+   104→export type SectorStatus = "live" | "planned";
+   105→
+   106→export interface Sector {
+   107→  id: string;
+   108→  index: string;
+   109→  kicker: string;
+   110→  heading: string;
+   111→  body: string;
+   112→  image: string;
+   113→  imageAlt: string;
+   114→  status: SectorStatus;
+   115→  cta: { label: string; href: string };
+   116→  meta: string[];
+   117→  align: "left" | "right";
+   118→  theme: ChapterTheme;
+   119→  /** heightmap derivation: invert luminance, displacement strength */
+   120→  height: { invert: boolean; strength: number; bias: number };
+   121→}
+   122→
+   123→export const SECTORS: Sector[] = [
+   124→  {
+   125→    id: "system-earthquakes",
+   126→    index: "01",
+   127→    kicker: "Ground deformation",
+   128→    heading: "When the ground shifts.",
+   129→    body: "Earthquakes rearrange the surface in seconds. Radar measures the displacement between passes — and physics checks whether the answer holds together.",
+   130→    image: "/landscapes/earthquake.webp",
+   131→    imageAlt:
+   132→      "Aerial view of a rugged arid landscape cut by a visible geological fault line.",
+   133→    status: "live",
+   134→    cta: { label: "Explore earthquakes", href: LINKS.earthquakes },
+   135→    meta: [
+   136→      "earthquake_coseismic · 3.01",
+   137→      "Physics — Okada85 + consistency screen",
+   138→      "Status — implemented",
+   139→    ],
+   140→    align: "left",
+   141→    theme: THEMES.quake,
+   142→    height: { invert: false, strength: 1.0, bias: 0.0 },
+   143→  },
+   144→  {
+   145→    id: "system-hurricanes",
+   146→    index: "02",
+   147→    kicker: "Water & storm",
+   148→    heading: "When water reshapes the land.",
+   149→    body: "Storms rewrite coastlines and floodplains. Mapping water where it shouldn’t be is a different question from ground movement — and never mistaken for it.",
+   150→    image: "/landscapes/delta.webp",
+   151→    imageAlt:
+   152→      "Aerial view of a river delta meeting the ocean, dark landmasses against bright reflective water.",
+   153→    status: "planned",
+   154→    cta: { label: "Explore hurricanes", href: LINKS.hurricanes },
+   155→    meta: [
+   156→      "flood_inundation · 3.07 — in development",
+   157→      "tropical_cyclone · 3.13 — in development",
+   158→      "Event feeds — ComCat · IBTrACS, live",
+   159→    ],
+   160→    align: "right",
+   161→    theme: THEMES.water,
+   162→    height: { invert: true, strength: 0.72, bias: -0.04 },
+   163→  },
+   164→  {
+   165→    id: "system-erosion",
+   166→    index: "03",
+   167→    kicker: "Sediment & shifting channels",
+   168→    heading: "Where rivers redraw the land.",
+   169→    body: "Rivers are patient sculptors — eroding here, depositing there, decade after decade. Geometry and statistics trace the changes along the corridor.",
+   170→    image: "/landscapes/river_alt.webp",
+   171→    imageAlt:
+   172→      "Aerial view of a winding river meandering through a dense forest landscape.",
+   173→    status: "planned",
+   174→    cta: { label: "Explore river erosion", href: LINKS.erosion },
+   175→    meta: [
+   176→      "river_erosion · 3.10 — in development",
+   177→      "Geometry + statistics",
+   178→      "River corridors — S11 buffer, water occurrence",
+   179→    ],
+   180→    align: "left",
+   181→    theme: THEMES.river,
+   182→    height: { invert: false, strength: 0.85, bias: 0.05 },
+   183→  },
+   184→];
+   185→
+   186→/* ------------------------------------------------------------------ */
+   187→/* The engine watchlist — real pipeline catalog from the repository     */
+   188→/* ------------------------------------------------------------------ */
+   189→
+   190→export interface PipelineRow {
+   191→  code: string;
+   192→  name: string;
+   193→  live: boolean;
+   194→}
+   195→
+   196→export const PIPELINES: PipelineRow[] = [
+   197→  { code: "3.01", name: "earthquake_coseismic", live: true },
+   198→  { code: "3.02", name: "land_subsidence", live: false },
+   199→  { code: "3.03", name: "volcanic_deformation", live: false },
+   200→  { code: "3.04", name: "landslide", live: false },
+   201→  { code: "3.05", name: "glacier_ice_flow", live: false },
+   202→  { code: "3.06", name: "permafrost_thaw", live: false },
+   203→  { code: "3.07", name: "flood_inundation", live: false },
+   204→  { code: "3.08", name: "deforestation", live: false },
+   205→  { code: "3.09", name: "wildfire_burn_scar", live: false },
+   206→  { code: "3.10", name: "river_erosion", live: false },
+   207→  { code: "3.11", name: "coastal_erosion", live: false },
+   208→  { code: "3.12", name: "urban_damage", live: false },
+   209→  { code: "3.13", name: "tropical_cyclone", live: false },
+   210→  { code: "3.14", name: "tsunami_inundation", live: false },
+   211→  { code: "3.15", name: "oil_spill", live: false },
+   212→  { code: "3.16", name: "iceberg_calving_drift", live: false },
+   213→  { code: "3.17", name: "tsunami_ocean_evidence", live: true },
+   214→];
+   215→
+   216→/* ------------------------------------------------------------------ */
+   217→/* Evidence — the engine's real verdict vocabulary (engine/verdict)     */
+   218→/* ------------------------------------------------------------------ */
+   219→
+   220→export const VERDICT_TIERS: { label: string; note: string; tone: string }[] = [
+   221→  { label: "supported by evidence", note: "the signal survives its consistency screens", tone: "ok" },
+   222→  { label: "candidate / possible", note: "worth a closer look — not yet conclusive", tone: "mid" },
+   223→  { label: "not supported by evidence", note: "the observations argue against it", tone: "off" },
+   224→  { label: "not enough evidence", note: "the archive is genuinely young", tone: "dim" },
+   225→  { label: "did not apply here", note: "the pipeline itself said “not for this tile”", tone: "dim" },
+   226→  { label: "not modelled yet", note: "honestly absent, not silently skipped", tone: "dim" },
+   227→];
+   228→
+   229→export const EVIDENCE = {
+   230→  kicker: "Chapter V — From observation to evidence",
+   231→  heading: "Observe. Compare. Investigate.",
+   232→  body: "A satellite image is an observation, not a conclusion. An algorithm produces an estimate. Scientific interpretation requires evidence — and an honest account of uncertainty.",
+   233→  stages: [
+   234→    {
+   235→      n: "01",
+   236→      title: "Observe",
+   237→      body: "Satellites watch the same ground again and again. Radar adds what eyes cannot get through — cloud, darkness, and motion at millimetre scale.",
+   238→    },
+   239→    {
+   240→      n: "02",
+   241→      title: "Compare",
+   242→      body: "Algorithms compare observations across time — coherence, backscatter, phase — and turn the difference into an estimate, with its uncertainty attached. Drag the divider: the terrain behind it answers.",
+   243→    },
+   244→    {
+   245→      n: "03",
+   246→      title: "Investigate",
+   247→      body: "A human reads the evidence. Every verdict names its tier and never a number it hasn’t earned: no calibrated probabilities until labelled histories exist — by design.",
+   248→    },
+   249→  ],
+   250→  compareLabels: {
+   251→    left: "Optical — what sunlight shows",
+   252→    right: "SAR — what radar shows",
+   253→    hint: "Drag to compare",
+   254→  },
+   255→  engineKicker: "The engine",
+   256→  engineHeading: "Seventeen watchers. One honest verdict.",
+   257→  engineBody:
+   258→    "The MOTUS engine runs every detector that could apply to a scene — sixteen hazard types, seventeen independent pipelines. No pipeline reads another’s output; every answer carries its evidence with it.",
+   259→  footnote:
+   260→    "Scenes above are illustrative examples of observation types — not measurement results from a specific event.",
+   261→} as const;
+   262→
+   263→/* ------------------------------------------------------------------ */
+   264→/* Chapter VI — Innovation: what actually makes MOTUS different        */
+   265→/* (facts from docs/ARCHITECTURE.md §1–§2)                             */
+   266→/* ------------------------------------------------------------------ */
+   267→
+   268→export const INNOVATION = {
+   269→  kicker: "Chapter VI — What makes MOTUS different",
+   270→  heading: "Not another map. A witness with rules.",
+   271→  body: "Most platforms show you a picture and let you guess. MOTUS is built the other way around — three rules, enforced in the architecture itself, not painted on afterwards. Scroll through one radar pass to read them.",
+   272→  cue: "Follow the pass",
+   273→  beats: [
+   274→    {
+   275→      rule: "Rule 01",
+   276→      title: "Independence is structural.",
+   277→      body: "Sixteen hazards, seventeen pipelines — and no pipeline is allowed to read another’s output. Not a convention: enforced by where the code is allowed to live. Shared physics and statistics sit in one library, visible to every pipeline equally — so a tile that triggers three hazards gets three honest, separately-derived answers.",
+   278→      align: "left" as const,
+   279→    },
+   280→    {
+   281→      rule: "Rule 02",
+   282→      title: "The evidence travels with the verdict.",
+   283→      body: "Every answer reports what it found, how confident it is, and exactly which data and corrections it used. Causally-linked hazards — quake → landslide → tsunami → urban damage — are tied together after the fact by the verdict stage, never fused inside a single model that would hide where the evidence came from.",
+   284→      align: "right" as const,
+   285→    },
+   286→    {
+   287→      rule: "Rule 03",
+   288→      title: "Honest about not knowing.",
+   289→      body: "“Not applicable” is a different answer than “no event.” No correction is ever applied silently. And until enough labelled history exists to earn calibration, pipelines report status tiers and within-tier scores — never a probability they haven’t earned.",
+   290→      align: "left" as const,
+   291→    },
+   292→  ],
+   293→  ossKicker: "Built on proven open science",
+   294→  ossHeading: "Where it’s mature, we don’t reinvent it.",
+   295→  ossBody:
+   296→    "Custom engineering is spent on orchestration, fetch and integration — not on rewriting physics that already works. The building blocks are public, peer-reviewed and battle-tested.",
+   297→  ossChips: [
+   298→    "Okada85",
+   299→    "MintPy",
+   300→    "autoRIFT",
+   301→    "DSWX-SAR",
+   302→    "ARIA DPM",
+   303→    "RivGraph",
+   304→    "CoastSat",
+   305→    "pyTMD",
+   306→  ],
+   307→  ossLink: { label: "See how each pipeline is built", href: LINKS.architecture },
+   308→} as const;
+   309→
+   310→/* ------------------------------------------------------------------ */
+   311→/* Chapter VII — Architecture: the engine, easy to read                 */
+   312→/* (layers & flow from docs/ARCHITECTURE.md §3–§4)                     */
+   313→/* ------------------------------------------------------------------ */
+   314→
+   315→export interface ArchLayer {
+   316→  no: string;
+   317→  id: string;
+   318→  title: string;
+   319→  tagline: string;
+   320→  body: string;
+   321→  chips: string[];
+   322→}
+   323→
+   324→export const ARCHITECTURE = {
+   325→  kicker: "Chapter VII — How MOTUS is built",
+   326→  heading: "One machine. Five honest stages.",
+   327→  body: "The whole engine reads top to bottom: data flows upward, answers come out at the top. Scroll to take it apart.",
+   328→  cue: "Take it apart",
+   329→  layers: <ArchLayer[]>[
+   330→    {
+   331→      no: "01",
+   332→      id: "retrieval",
+   333→      title: "Retrieval",
+   334→      tagline: "Decide what to fetch — then get it",
+   335→      body: "Granule and event pollers — ComCat, FIRMS, IBTrACS, GFW, IMERG — watch the world and wake the tiles that matter. One client per source fetches exactly the bytes needed, behind centralised keys and a disk cache that fails loudly, never silently.",
+   336→      chips: ["event pollers", "per-source clients", "TTL cache"],
+   337→    },
+   338→    {
+   339→      no: "02",
+   340→      id: "bundle",
+   341→      title: "The SceneBundle",
+   342→      tagline: "One read-only object",
+   343→      body: "Common preprocessing — P01 through P13 — runs once per frame, tile and epoch, and hands every pipeline the same immutable bundle. It is the only measurement-side input a pipeline is ever allowed to read.",
+   344→      chips: ["P01–P13", "read-only", "provenance attached"],
+   345→    },
+   346→    {
+   347→      no: "03",
+   348→      id: "pipelines",
+   349→      title: "The pipelines",
+   350→      tagline: "Seventeen watchers, zero gossip",
+   351→      body: "Every hazard detector lives in its own folder — manifest, prep, fetch, model, verdict — and runs in parallel without touching the others. Shared physics lives one level up in engine/lib, where everyone can see it equally.",
+   352→      chips: ["independent", "process pool", "manifest-first"],
+   353→    },
+   354→    {
+   355→      no: "04",
+   356→      id: "verdict",
+   357→      title: "The verdict",
+   358→      tagline: "Collect · calibrate · link · select · persist",
+   359→      body: "Every pipeline’s return is collected, calibrated when it can be, and linked into causal chains — storm → flood → erosion — after the fact. Exclusive explanations are resolved by evidence before anything is persisted.",
+   360→      chips: ["causal links", "no silent fusion", "status tiers"],
+   361→    },
+   362→    {
+   363→      no: "05",
+   364→      id: "serving",
+   365→      title: "Serving",
+   366→      tagline: "Answers, out in the open",
+   367→      body: "Tiles, events and evidence layers over a clean API — and the console drawer is generated straight from each pipeline’s manifest, so the interface can never claim more than the pipeline actually said.",
+   368→      chips: ["/tiles", "/events", "/scanner/status"],
+   369→    },
+   370→  ],
+   371→  flowCaption: "DATA FLOWS — RETRIEVAL → SERVING",
+   372→  sideKicker: "The quiet machinery",
+   373→  sideNotes: [
+   374→    {
+   375→      title: "engine/lib",
+   376→      body: "Shared physics and statistics — Okada85, flood detection, offset tracking, changepoint, terrain — the only code pipelines may cross-import.",
+   377→    },
+   378→    {
+   379→      title: "The registry",
+   380→      body: "Scans the pipeline folders, reads every manifest, and runs whatever applies — in a process pool, in parallel.",
+   381→    },
+   382→    {
+   383→      title: "Validation",
+   384→      body: "Labels, fixtures and regression tests — the history that will one day earn calibrated probabilities.",
+   385→    },
+   386→  ],
+   387→  cta: { label: "Read the full architecture document", href: LINKS.architecture },
+   388→} as const;
+   389→
+   390→/* ------------------------------------------------------------------ */
+   391→/* Chapter VIII — Correlations: from results to reasons                */
+   392→/* ------------------------------------------------------------------ */
+   393→
+   394→export interface CorrPipeline {
+   395→  code: string;
+   396→  name: string;
+   397→  live?: boolean;
+   398→}
+   399→
+   400→export interface Correlation {
+   401→  id: string;
+   402→  index: string;
+   403→  domain: string;
+   404→  title: string;
+   405→  chain: { label: string; text: string }[];
+   406→  body: string;
+   407→  note?: string;
+   408→  image: string;
+   409→  imageAlt: string;
+   410→  pipelines: CorrPipeline[];
+   411→  accent: string;
+   412→}
+   413→
+   414→export const CORRELATIONS = {
+   415→  kicker: "Chapter VIII — From results to reasons",
+   416→  heading: "Every result is the start of a chain.",
+   417→  body: "A measurement is not a conclusion. An event leaves a signature in the data; the signature implies consequences on the ground. Reading that chain — honestly — is the science MOTUS is built for.",
+   418→  chainLabels: ["Event", "Signature", "Consequence"],
+   419→  chains: <Correlation[]>[
+   420→    {
+   421→      id: "corr-quake",
+   422→      index: "C·01",
+   423→      domain: "Ground deformation",
+   424→      title: "When the ground breaks, it leaves craters.",
+   425→      chain: [
+   426→        { label: "Event", text: "A strong earthquake strikes wet, sandy ground" },
+   427→        { label: "Signature", text: "Surface rupture, liquefaction craters & sand boils" },
+   428→        { label: "Consequence", text: "Displacement measurable from orbit — if physics agrees" },
+   429→      ],
+   430→      body: "Coseismic slip cuts a rupture across the surface, and violent shaking can liquefy waterlogged sand until it erupts in craters and sand boils. Radar measures the ground’s movement between passes — at millimetre scale — then asks Okada85 elastic physics whether the answer holds together. Both nodal planes are tested; the better fit keeps the verdict.",
+   431→      note: "The verdict stage links the chain onward: quake → landslide → tsunami → urban damage.",
+   432→      image: "/landscapes/liquefaction.webp",
+   433→      imageAlt:
+   434→        "Aerial view of farmland crossed by a fresh geological rupture dotted with pale liquefaction craters.",
+   435→      pipelines: [
+   436→        { code: "3.01", name: "earthquake_coseismic", live: true },
+   437→        { code: "3.04", name: "landslide" },
+   438→        { code: "3.17", name: "tsunami_ocean_evidence", live: true },
+   439→      ],
+   440→      accent: "#d9a066",
+   441→    },
+   442→    {
+   443→      id: "corr-salinity",
+   444→      index: "C·02",
+   445→      domain: "Storm & coast",
+   446→      title: "The sea comes inland; the salt stays.",
+   447→      chain: [
+   448→        { label: "Event", text: "A cyclone pushes the ocean over the coast" },
+   449→        { label: "Signature", text: "Water where it should never be — then salt in the soil" },
+   450→        { label: "Consequence", text: "Coastal farmland marked for seasons after the storm" },
+   451→      ],
+   452→      body: "Storm surge drowns coastal land in seawater. The flood recedes; the salt remains — and long after the cyclone itself is forgotten, the fields remember. Mapping water where it shouldn’t be is a different question from ground movement, and the engine never mistakes one for the other: the verdict stage links the storm to the flood it caused, and the coast watches what the water left behind.",
+   453→      image: "/landscapes/salinity.webp",
+   454→      imageAlt:
+   455→        "Aerial view of coastal rice paddies with pale salt-crusted barren patches between green fields.",
+   456→      pipelines: [
+   457→        { code: "3.13", name: "tropical_cyclone" },
+   458→        { code: "3.07", name: "flood_inundation" },
+   459→        { code: "3.11", name: "coastal_erosion" },
+   460→      ],
+   461→      accent: "#7fc4c9",
+   462→    },
+   463→    {
+   464→      id: "corr-forest",
+   465→      index: "C·03",
+   466→      domain: "Forest & slopes",
+   467→      title: "Where the forest falls, the marking is permanent.",
+   468→      chain: [
+   469→        { label: "Event", text: "Clearing — by axe, by fire, by wind" },
+   470→        { label: "Signature", text: "A persistent drop in cross-polarised backscatter" },
+   471→        { label: "Consequence", text: "Slopes uncovered — erosion and landslide exposure" },
+   472→      ],
+   473→      body: "Radar’s cross-polarised signal falls when canopy disappears — a sequential, persistent change that marks each clearing patch, tells fire from felling from windthrow, and holds the history of every hectare. And when the canopy goes, the slopes beneath it are exposed: the same engine that watched the forest fall watches what the rain does next.",
+   474→      image: "/landscapes/deforestation.webp",
+   475→      imageAlt:
+   476→        "Aerial view of rainforest canopy with sharp-edged clearings and fishbone logging roads.",
+   477→      pipelines: [
+   478→        { code: "3.08", name: "deforestation" },
+   479→        { code: "3.04", name: "landslide" },
+   480→      ],
+   481→      accent: "#9ab87a",
+   482→    },
+   483→    {
+   484→      id: "corr-urban",
+   485→      index: "C·04",
+   486→      domain: "Urbanization",
+   487→      title: "As the city grows, the hazard grows with it.",
+   488→      chain: [
+   489→        { label: "Event", text: "Expansion seals ground and crowds structures" },
+   490→        { label: "Signature", text: "Changed radar returns — and coherence that drops where damage concentrates" },
+   491→        { label: "Consequence", text: "Amplified flooding, concentrated event damage" },
+   492→      ],
+   493→      body: "Ground that soaked rain now sheds it; buildings that crowd together change how radar echoes return. When an earthquake or a storm hits a grown city, coherence collapses exactly where damage concentrates — the same growth that raised the exposure also writes it into the signal. Urbanization and natural events are not separate stories; they are the same story read twice.",
+   494→      image: "/landscapes/urban.webp",
+   495→      imageAlt:
+   496→        "Aerial view of a dense South Asian megacity at dusk meeting open floodplain water.",
+   497→      pipelines: [
+   498→        { code: "3.12", name: "urban_damage" },
+   499→        { code: "3.07", name: "flood_inundation" },
+   500→      ],
+   501→      accent: "#d9c08a",
+   502→    },
+   503→    {
+   504→      id: "corr-oil",
+   505→      index: "C·05",
+   506→      domain: "Ocean & slicks",
+   507→      title: "Oil reads as darkness on a bright sea.",
+   508→      chain: [
+   509→        { label: "Event", text: "A spill spreads across open water" },
+   510→        { label: "Signature", text: "Damped capillary waves — a dark patch in radar" },
+   511→        { label: "Consequence", text: "A coastline downstream on the current’s schedule" },
+   512→      ],
+   513→      body: "Oil stills the tiny capillary waves that make the sea scatter radar bright — so a spill reads as darkness on a bright sea. Adaptive local thresholds find the dark spots; a classifier separates oil from wind shadows and biogenic look-alikes. What matters most is not the patch — it’s the coast downstream.",
+   514→      image: "/landscapes/oilspill.webp",
+   515→      imageAlt: "Aerial view of a dark oil slick trailing across grey ocean water.",
+   516→      pipelines: [
+   517→        { code: "3.15", name: "oil_spill" },
+   518→        { code: "3.11", name: "coastal_erosion" },
+   519→      ],
+   520→      accent: "#c98d7e",
+   521→    },
+   522→    {
+   523→      id: "corr-river",
+   524→      index: "C·06",
+   525→      domain: "Rivers & soil",
+   526→      title: "The river’s hidden work: bends no eye can see.",
+   527→      chain: [
+   528→        { label: "Event", text: "A meander deepens; the channel begins to wander" },
+   529→        { label: "Signature", text: "Outer bank retreats, inner bar deposits — epoch after epoch" },
+   530→        { label: "Consequence", text: "Unseen soil structure undercut until the bank fails" },
+   531→      ],
+   532→      body: "The outer bend erodes while the inner deposits, and the channel wanders across the plain — undercutting banks, exhaling soil structure no ground survey can see, moving metres in a single monsoon. Epoch by epoch, water masks trace the retreat transect by transect along the corridor, until the river’s quiet work becomes a map you can act on.",
+   533→      image: "/landscapes/river.webp",
+   534→      imageAlt: "Aerial view of a winding river meandering through forested land.",
+   535→      pipelines: [
+   536→        { code: "3.10", name: "river_erosion" },
+   537→        { code: "3.07", name: "flood_inundation" },
+   538→      ],
+   539→      accent: "#8fc9a4",
+   540→    },
+   541→  ],
+   542→} as const;
+   543→
+   544→/* ------------------------------------------------------------------ */
+   545→/* Chapter IX — Impact: what MOTUS is built to make possible           */
+   546→/* ------------------------------------------------------------------ */
+   547→
+   548→export const IMPACT = {
+   549→  kicker: "Chapter IX — What MOTUS is built to make possible",
+   550→  heading: "Answers people can act on.",
+   551→  body: "A verdict is only worth having if someone can do something with it. Three audiences shaped every design decision in the engine.",
+   552→  rows: [
+   553→    {
+   554→      n: "01",
+   555→      who: "For responders",
+   556→      title: "Evidence that arrives with its provenance.",
+   557→      body: "When the ground breaks or the storm makes landfall, a disaster team needs a map it can defend. Every MOTUS verdict carries what was measured, how confident it is, and what to check next — no black box between the disaster and the decision.",
+   558→    },
+   559→    {
+   560→      n: "02",
+   561→      who: "For scientists",
+   562→      title: "Sixteen detectors, no hidden fusion.",
+   563→      body: "Every verdict separates back into its evidence, its code and its corrections — a system built to be argued with, not just believed. Each pipeline’s status is public, including the honest ones.",
+   564→    },
+   565→    {
+   566→      n: "03",
+   567→      who: "For communities & planners",
+   568→      title: "The slow changes, watched honestly.",
+   569→      body: "Subsiding ground, retreating banks, thinning forest, growing floodplains — change that unfolds over years is the hardest to see and the most important to plan around. MOTUS is built to watch it year after year and report it with its uncertainty attached.",
+   570→    },
+   571→  ],
+   572→  lifecycleKicker: "The life of an answer",
+   573→  lifecycle: [
+   574→    { label: "Event", note: "an earthquake lands in ComCat · a cyclone forms in IBTrACS" },
+   575→    { label: "Trigger", note: "rules wake the tiles that matter" },
+   576→    { label: "Scan", note: "every applicable pipeline runs, in parallel" },
+   577→    { label: "Verdict", note: "status tiers + evidence, linked into chains" },
+   578→    { label: "Response", note: "a map that can defend itself" },
+   579→  ],
+   580→  footnote:
+   581→    "MOTUS is young — these are the goals it is engineered toward, stated with the same honesty as its verdicts.",
+   582→} as const;
+   583→
+   584→/* ------------------------------------------------------------------ */
+   585→/* Chapter X — Home: why this matters in Bangladesh                    */
+   586→/* ------------------------------------------------------------------ */
+   587→
+   588→export interface HomeWatch {
+   589→  region: string;
+   590→  tag: string;
+   591→  body: string;
+   592→  pipelines: CorrPipeline[];
+   593→}
+   594→
+   595→export const HOME = {
+   596→  kicker: "Chapter X — The view from home",
+   597→  heading: "Built in Bangladesh, for the delta radar was made for.",
+   598→  body: "For much of the year, monsoon cloud hides this country from every optical satellite in orbit. L-band radar does not care — it measures through cloud and darkness, at millimetre scale. Home is the harshest proving ground we could have chosen, and the most honest.",
+   599→  watchKicker: "The home watchlist",
+   600→  watchHeading: "What we’re building it to watch.",
+   601→  watches: <HomeWatch[]>[
+   602→    {
+   603→      region: "The delta & its chars",
+   604→      tag: "JAMUNA · BRAHMAPUTRA",
+   605→      body: "The Jamuna braids and wanders; chars — river islands — are born and erased within years. Bank erosion moves land, livelihoods and people, monsoon after monsoon, along bends no survey can keep up with.",
+   606→      pipelines: [
+   607→        { code: "3.10", name: "river_erosion" },
+   608→        { code: "3.07", name: "flood_inundation" },
+   609→      ],
+   610→    },
+   611→    {
+   612→      region: "The coast & the Sundarbans",
+   613→      tag: "BAY OF BENGAL",
+   614→      body: "Cyclones push the sea over coastal districts; the surge leaves salt in the fields, and the mangrove line is the last defence. What the storm floods, the soil remembers — long after the sky clears.",
+   615→      pipelines: [
+   616→        { code: "3.13", name: "tropical_cyclone" },
+   617→        { code: "3.11", name: "coastal_erosion" },
+   618→        { code: "3.08", name: "deforestation" },
+   619→      ],
+   620→    },
+   621→    {
+   622→      region: "The floodplains",
+   623→      tag: "PADMA · MEGHNA BASIN",
+   624→      body: "Flood is not an event here; it is a season. The plains breathe with the rivers — and where a delta compacts, the ground itself subsides beneath the water line.",
+   625→      pipelines: [
+   626→        { code: "3.07", name: "flood_inundation" },
+   627→        { code: "3.02", name: "land_subsidence" },
+   628→      ],
+   629→    },
+   630→    {
+   631→      region: "The growing cities",
+   632→      tag: "DHAKA & BEYOND",
+   633→      body: "Dhaka is one of the fastest-growing megacities on Earth — expansion that seals floodplain, concentrates shaking, and rewrites every hazard map around it. The 1885 Bengal earthquake is a reminder that the fault lines beneath are real.",
+   634→      pipelines: [
+   635→        { code: "3.12", name: "urban_damage" },
+   636→        { code: "3.01", name: "earthquake_coseismic", live: true },
+   637→      ],
+   638→    },
+   639→  ],
+   640→  note: "Not claims of results — the readiness to watch. Every pipeline above is on the public roadmap, with its status in the open.",
+   641→  cta: { label: "Follow the build", href: LINKS.repo },
+   642→} as const;
+   643→
+   644→export const FINALE = {
+   645→  kicker: "Chapter XI — Enter MOTUS",
+   646→  heading: "The story is written on Earth.",
+   647→  body: "Explore the observations. Investigate the changes. Understand what the evidence can tell us.",
+   648→  primary: { label: "Start exploring", href: LINKS.app },
+   649→  secondary: { label: "How MOTUS works", href: LINKS.architecture },
+   650→} as const;
+   651→
+   652→export const FOOTER = {
+   653→  blurb:
+   654→    "An Earth-observation story built for NASA Space Apps Challenge 2026 — Dancing with the SARs.",
+   655→  disclaimer:
+   656→    "A Space Apps challenge project. Not affiliated with or endorsed by NASA.",
+   657→  credits:
+   658→    "Earth imagery: NASA Visible Earth — Blue Marble & city lights. Landscape scenes are editorial photography.",
+   659→} as const;
+   660→

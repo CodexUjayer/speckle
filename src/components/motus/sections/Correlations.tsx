@@ -224,13 +224,13 @@ export default function Correlations() {
       ref={root}
       id="correlations"
       aria-labelledby="correlations-heading"
-      className="relative bg-[#0f0806]"
+      className="relative bg-[#04070d]"
       style={{ ["--accent" as string]: THEMES.correlation.accent }}
     >
       {/* the seam — melting out of the architecture dark */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#060c0a_0svh,rgba(15,8,6,0.55)_12svh,#0f0806_26svh)]"
+        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#04070d_0svh,rgba(4,7,13,0.55)_12svh,#04070d_26svh)]"
       />
       <div
         aria-hidden

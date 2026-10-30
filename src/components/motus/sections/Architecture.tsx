@@ -77,7 +77,7 @@ function Slab({ layer, i }: { layer: ArchLayer; i: number }) {
             {layer.title}
           </h3>
         </div>
-        <p className="w-full text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 sm:w-auto sm:text-right">
+        <p className="arch-slab-tag w-full text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 sm:w-auto sm:text-right">
           {layer.tagline}
         </p>
       </div>
@@ -107,7 +107,10 @@ export default function Architecture() {
     if (notesRef.current) return cinematify(notesRef.current);
   }, []);
 
-  /* the explosion — only on wide screens, only with motion allowed */
+  /* the explosion — only on wide screens, only with motion allowed.
+     The machine comes apart through the first half of the scroll, then
+     HOLDS fully exploded for the rest of the pin, so the visitor can
+     actually rest on the complete view before the chapter moves on. */
   useEffect(() => {
     if (!root.current || !stack.current || !sticky.current) return;
     const mm = gsap.matchMedia();
@@ -127,7 +130,7 @@ export default function Architecture() {
             end: "bottom bottom",
             scrub: 0.7,
             onUpdate: (self) => {
-              const i = Math.min(4, Math.floor(self.progress * 5));
+              const i = Math.min(4, Math.floor(self.progress / 0.13));
               if (i !== active) {
                 active = i;
                 holder.dataset.active = String(i);
@@ -138,7 +141,7 @@ export default function Architecture() {
         tl.fromTo(
           el,
           { autoAlpha: 0.25 },
-          { autoAlpha: 1, duration: 0.1 },
+          { autoAlpha: 1, duration: 0.05 },
           0,
         );
         /* the group rides low and drifts down as the layers rise —
@@ -146,15 +149,22 @@ export default function Architecture() {
            whole explosion framed */
         tl.fromTo(
           el,
-          { y: 60 },
-          { y: 130, duration: 0.95 },
+          { y: 40 },
+          { y: 92, duration: 0.55 },
           0,
         );
+        /* the take-apart itself — every tween below lives in the first
+           55% of the timeline; the tail is a hold, so the fully exploded
+           machine stays on stage (and readable) for the whole second
+           half of the pin instead of completing at the very end */
         tl.to(
           el,
-          { rotateX: 44, rotateZ: -5, "--gap": 118, duration: 0.95 },
-          0.05,
+          { rotateX: 44, rotateZ: -5, "--gap": 96, duration: 0.52 },
+          0.03,
         );
+        /* the hold — pads the timeline to 1.0 so 55% of timeline time
+           is 55% of the scroll, and nothing moves after it */
+        tl.to({ _: 0 }, { _: 1, duration: 0.45 }, 0.55);
       },
     );
     return () => mm.revert();
@@ -164,13 +174,13 @@ export default function Architecture() {
     <section
       id="architecture"
       aria-labelledby="architecture-heading"
-      className="relative bg-[#060c0a]"
+      className="relative bg-[#04070d]"
       style={{ ["--accent" as string]: THEMES.architecture.accent }}
     >
       {/* the seam — melting out of the innovation dark */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#0c0b07_0svh,rgba(6,12,10,0.55)_12svh,#060c0a_26svh)]"
+        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#04070d_0svh,rgba(4,7,13,0.55)_12svh,#04070d_26svh)]"
       />
       <div
         aria-hidden

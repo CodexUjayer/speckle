@@ -249,7 +249,7 @@ export default function StaticStory() {
       >
         <div
           aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,8,16,0)_0svh,rgba(5,8,16,0.62)_14svh,#050810_24svh)]"
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(4,7,13,0)_0svh,rgba(4,7,13,0.62)_14svh,#04070d_24svh)]"
         />
         <div aria-hidden className="grain pointer-events-none absolute inset-0" />
         <div className="relative z-[1] mx-auto max-w-6xl px-5 pb-28 pt-[calc(24svh+6rem)] sm:px-8">
@@ -367,7 +367,7 @@ export default function StaticStory() {
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[26svh] bg-gradient-to-b from-[#050810] to-transparent"
+          className="absolute inset-x-0 top-0 h-[26svh] bg-gradient-to-b from-[#04070d] to-transparent"
         />
         <div
           aria-hidden

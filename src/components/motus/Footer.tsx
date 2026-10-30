@@ -33,7 +33,7 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
 
 export default function Footer() {
   return (
-    <footer className="relative mt-auto bg-[#03060b]">
+    <footer className="relative mt-auto bg-[#04070d]">
       {/* blend in from the finale dark — no hard cut */}
       <div
         aria-hidden

@@ -298,7 +298,7 @@ function SystemsSequence() {
       role="region"
       aria-label="The changing systems"
       className="relative z-[1]"
-      style={{ height: "454svh" }}
+      style={{ height: "620svh" }}
     >
       <div
         ref={sticky}
@@ -364,7 +364,7 @@ function SystemsSequence() {
               texts.current[i] = el;
             }}
             inert={i !== 0}
-            className="absolute inset-0 z-50 overflow-y-auto overscroll-contain"
+            className="absolute inset-0 z-50 overflow-y-auto"
             style={{ pointerEvents: i === 0 ? "auto" : "none" }}
           >
             <div className="flex min-h-full items-center py-8">
@@ -712,7 +712,7 @@ export default function ScrollChapters() {
         {/* the dissolve — the river terrain fades into the evidence dark */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,8,16,0)_0svh,rgba(5,8,16,0.62)_22svh,#050810_38svh)]"
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(4,7,13,0)_0svh,rgba(4,7,13,0.62)_22svh,#04070d_38svh)]"
         />
         {/* an ambient wash of the chapter accent, breathing at the top */}
         <div
@@ -840,7 +840,7 @@ export default function ScrollChapters() {
       </section>
 
       {/* chapter VI — what makes MOTUS different (the SAR pass) */}
-      <Innovation webgl />
+      <Innovation />
 
       {/* chapter VII — the architecture, taken apart */}
       <Architecture />
@@ -874,7 +874,7 @@ export default function ScrollChapters() {
         {/* blend in from the home dark, settle into the footer dark */}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[32svh] bg-gradient-to-b from-[#050b08] via-[#050b08]/55 to-transparent"
+          className="absolute inset-x-0 top-0 h-[32svh] bg-gradient-to-b from-[#04070d] via-[#04070d]/55 to-transparent"
         />
         <div
           aria-hidden

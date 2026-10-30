@@ -65,13 +65,13 @@ export default function Impact() {
       ref={root}
       id="impact"
       aria-labelledby="impact-heading"
-      className="relative bg-[#050810]"
+      className="relative bg-[#04070d]"
       style={{ ["--accent" as string]: THEMES.impact.accent }}
     >
       {/* the seam — melting out of the correlations dark */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#0f0806_0svh,rgba(5,8,16,0.55)_12svh,#050810_26svh)]"
+        className="absolute inset-x-0 top-0 h-[26svh] bg-[linear-gradient(to_bottom,#04070d_0svh,rgba(4,7,13,0.55)_12svh,#04070d_26svh)]"
       />
       <div aria-hidden className="grain pointer-events-none absolute inset-0" />
 
@@ -138,7 +138,7 @@ export default function Impact() {
                 <li key={s.label} className="relative flex gap-5 sm:block sm:pr-2">
                   <span
                     data-life-dot
-                    className="relative z-[1] mt-1 block h-[11px] w-[11px] shrink-0 rounded-full border border-[var(--accent)] bg-[#050810] sm:mt-0"
+                    className="relative z-[1] mt-1 block h-[11px] w-[11px] shrink-0 rounded-full border border-[var(--accent)] bg-[#04070d] sm:mt-0"
                   />
                   <div data-life-label className="sm:mt-4 sm:max-w-[170px]">
                     <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/80">
