@@ -15,7 +15,7 @@ export default function StoryTranscript() {
   return (
     <article className="sr-only">
       <h1>
-        {HERO.title} — {HERO.subtitle}
+        {HERO.title}: {HERO.subtitle}
       </h1>
       <p>{HERO.eyebrow}</p>
       <p>{HERO.body}</p>

@@ -289,7 +289,7 @@ export default function StaticStory() {
 
           <div data-reveal className="mt-16 rounded-md border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/45">
-              Verdict vocabulary — as reported by the engine
+              Verdict vocabulary, as reported by the engine
             </p>
             <ul className="mt-5 grid gap-3.5 sm:grid-cols-2">
               {VERDICT_TIERS.map((t) => (

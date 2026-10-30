@@ -18,9 +18,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MOTUS — Earth is always changing",
+  title: "MOTUS · Earth is always changing",
   description:
-    "A cinematic journey from orbit into Earth's changing landscapes. Satellite radar, honest evidence, and the stories our planet writes — built for NASA Space Apps Challenge 2026, Dancing with the SARs.",
+    "A cinematic journey from orbit into Earth's changing landscapes. Built for NASA Space Apps Challenge 2026, Dancing with the SARs.",
   keywords: [
     "MOTUS",
     "Earth observation",
@@ -32,15 +32,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Dancing with the SARs team" }],
   openGraph: {
-    title: "MOTUS — Earth is always changing",
+    title: "MOTUS · Earth is always changing",
     description:
-      "A cinematic journey from orbit into Earth's changing landscapes — observed from space, measured in radar, investigated with evidence.",
+      "A cinematic journey from orbit into Earth's changing landscapes, observed from space and measured in radar.",
     siteName: "MOTUS",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MOTUS — Earth is always changing",
+    title: "MOTUS · Earth is always changing",
     description:
       "A cinematic journey from orbit into Earth's changing landscapes.",
   },

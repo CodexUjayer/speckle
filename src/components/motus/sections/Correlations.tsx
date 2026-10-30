@@ -105,7 +105,7 @@ function CorrCard({ c, flip }: { c: Correlation; flip: boolean }) {
 
           <ol
             className="mt-7 flex flex-col sm:flex-row sm:items-stretch"
-            aria-label={`Chain — ${c.domain}`}
+            aria-label={`Chain: ${c.domain}`}
           >
             {c.chain.map((n, i) => (
               <ChainNode

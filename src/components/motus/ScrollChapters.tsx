@@ -575,7 +575,7 @@ function VerdictList() {
   return (
     <div className="rounded-md border border-white/10 bg-white/[0.03] p-6 sm:p-8">
       <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/45">
-        Verdict vocabulary — as reported by the engine
+        Verdict vocabulary, as reported by the engine
       </p>
       <ul className="mt-5 grid gap-3.5 sm:grid-cols-2" aria-label="Possible verdict tiers">
         {VERDICT_TIERS.map((t) => (
@@ -594,7 +594,8 @@ function VerdictList() {
         ))}
       </ul>
       <p className="mt-6 border-t border-white/[0.07] pt-4 text-xs leading-relaxed text-white/40">
-        No calibrated probabilities until labelled histories exist — by design.
+        No calibrated probabilities until labelled histories exist. That part
+        is deliberate.
       </p>
     </div>
   );
@@ -829,7 +830,7 @@ export default function ScrollChapters() {
               ))}
             </ul>
             <p className="mt-5 text-[11px] leading-relaxed text-white/35">
-              Status as of the current repository —{" "}
+              Status as of the current repository:{" "}
               <span className="text-white/55">earthquake_coseismic</span> and{" "}
               <span className="text-white/55">tsunami_ocean_evidence</span> are
               implemented; the rest are scaffolded pipelines on the roadmap, each

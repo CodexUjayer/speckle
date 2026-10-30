@@ -115,7 +115,7 @@ function SweepSequence() {
       ref={root}
       data-frame
       role="region"
-      aria-label="One radar pass — the three rules of the engine"
+      aria-label="One radar pass: the three rules of the engine"
       className="relative z-[1]"
       style={{ height: "352svh" }}
     >

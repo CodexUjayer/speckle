@@ -190,8 +190,8 @@ function OrbitalReadout() {
       <span className="text-[9px] uppercase tracking-[0.34em] text-white/30">
         Orbital track
       </span>
-      <span ref={altRef}>ALT — KM</span>
-      <span ref={posRef}>SUB-POINT —</span>
+      <span ref={altRef}>ALT · KM</span>
+      <span ref={posRef}>SUB-POINT ·</span>
     </div>
   );
 }
