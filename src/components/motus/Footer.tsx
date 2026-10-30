@@ -15,6 +15,10 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
       { label: "The descent", href: "#top" },
       { label: "Changing systems", href: "#systems" },
       { label: "Evidence & method", href: "#method" },
+      { label: "What's different", href: "#innovation" },
+      { label: "The architecture", href: "#architecture" },
+      { label: "Results & reasons", href: "#correlations" },
+      { label: "Impact on Bangladesh", href: "#bangladesh" },
     ],
   },
   {

@@ -40,6 +40,11 @@ import {
   type Sector,
 } from "./data";
 import { cinematify, prefersReducedMotion } from "./sections/anim";
+import Innovation from "./sections/Innovation";
+import Architecture from "./sections/Architecture";
+import Correlations from "./sections/Correlations";
+import Impact from "./sections/Impact";
+import HomeImpact from "./sections/HomeImpact";
 import { clamp } from "./scroll";
 
 /* ------------------------------------------------------------------ */
@@ -288,6 +293,7 @@ function SystemsSequence() {
   return (
     <div
       ref={root}
+      id="systems"
       data-frame
       role="region"
       aria-label="The changing systems"
@@ -698,6 +704,7 @@ export default function ScrollChapters() {
       {/* chapter V — melts up over the last terrain, no seam, no cut */}
       <section
         ref={evidenceRef}
+        id="method"
         aria-labelledby="evidence-heading"
         className="relative z-[3] -mt-[38svh]"
         style={{ ["--accent" as string]: THEMES.evidence.accent }}
@@ -832,7 +839,22 @@ export default function ScrollChapters() {
         </div>
       </section>
 
-      {/* chapter VI — the closing title card, racking into focus */}
+      {/* chapter VI — what makes MOTUS different (the SAR pass) */}
+      <Innovation webgl />
+
+      {/* chapter VII — the architecture, taken apart */}
+      <Architecture />
+
+      {/* chapter VIII — from results to reasons */}
+      <Correlations />
+
+      {/* chapter IX — what it makes possible */}
+      <Impact />
+
+      {/* chapter X — the view from home */}
+      <HomeImpact />
+
+      {/* chapter XI — the closing title card, racking into focus */}
       <section
         ref={finaleRef}
         aria-labelledby="finale-heading"
@@ -849,10 +871,10 @@ export default function ScrollChapters() {
             backgroundPosition: "center 62%",
           }}
         />
-        {/* blend in from the evidence dark, settle into the footer dark */}
+        {/* blend in from the home dark, settle into the footer dark */}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[32svh] bg-gradient-to-b from-[#050810] via-[#050810]/55 to-transparent"
+          className="absolute inset-x-0 top-0 h-[32svh] bg-gradient-to-b from-[#050b08] via-[#050b08]/55 to-transparent"
         />
         <div
           aria-hidden

@@ -188,3 +188,163 @@
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* the architecture stack — an exploded machine (chapter VII)           */
+
+.arch-stage {
+  perspective: 1500px;
+  perspective-origin: 50% 50%;
+}
+.arch-stack {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* the slab itself — a solid, quiet panel (never glass) */
+.arch-slab {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: #0a1310;
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+  transition: border-color 0.55s ease, box-shadow 0.55s ease;
+}
+
+/* flat mode — narrow screens, or reduced motion: a readable ledger */
+.arch-pin {
+  height: auto;
+}
+.arch-sticky {
+  position: static;
+  height: auto;
+  display: block;
+  padding: 2.5rem 1.25rem 3.5rem;
+}
+.arch-stack {
+  height: auto;
+  display: grid;
+  gap: 14px;
+}
+.arch-slab {
+  position: relative;
+}
+.arch-detail {
+  display: none;
+}
+.arch-caption {
+  display: none;
+}
+.arch-caption-flat {
+  display: block;
+}
+
+/* exploded mode — thin layers, taken apart on scroll */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .arch-pin {
+    height: 320svh;
+  }
+  .arch-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 0;
+  }
+  /* the stage reserves the vertical room the explosion needs, so the
+     layers never collide with the detail panel below */
+  .arch-stage {
+    width: min(660px, 86vw);
+    height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arch-stack {
+    position: relative;
+    height: 78px;
+    display: block;
+  }
+  .arch-slab {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 1.35rem;
+    /* the z-range is centred on the stack plane, so the explosion
+           spreads up and down from the middle — not just upward */
+    transform: translateZ(
+      calc((var(--i, 2) - 2) * var(--gap, 26) * 1px)
+    );
+  }
+  /* the layer bodies live in the detail panel instead */
+  .arch-slab-body {
+    display: none;
+  }
+  .arch-detail {
+    display: block;
+    position: relative;
+    width: min(660px, 86vw);
+    min-height: 150px;
+  }
+  .arch-caption {
+    display: block;
+  }
+  .arch-caption-flat {
+    display: none;
+  }
+  /* the stage the data has reached — a soft lit edge */
+  .arch-sticky[data-active="0"] .arch-slab:nth-child(1),
+  .arch-sticky[data-active="1"] .arch-slab:nth-child(2),
+  .arch-sticky[data-active="2"] .arch-slab:nth-child(3),
+  .arch-sticky[data-active="3"] .arch-slab:nth-child(4),
+  .arch-sticky[data-active="4"] .arch-slab:nth-child(5) {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.42),
+      0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+}
+
+/* the detail items — one body per layer, crossfading with the active slab */
+.arch-detail-item {
+  position: absolute;
+  inset: 0 auto auto 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  pointer-events: none;
+}
+.arch-sticky[data-active="0"] .arch-detail-item[data-d="0"],
+.arch-sticky[data-active="1"] .arch-detail-item[data-d="1"],
+.arch-sticky[data-active="2"] .arch-detail-item[data-d="2"],
+.arch-sticky[data-active="3"] .arch-detail-item[data-d="3"],
+.arch-sticky[data-active="4"] .arch-detail-item[data-d="4"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* correlation chains — the event → signature → consequence rail        */
+
+.corr-card .corr-media {
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .corr-card:hover .corr-media {
+    transform: perspective(900px) rotateX(1.6deg) rotateY(-1.8deg) scale(1.015);
+  }
+  .corr-card:hover .corr-media img {
+    transform: scale(1.045);
+  }
+}
+.corr-media img {
+  transition: transform 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}

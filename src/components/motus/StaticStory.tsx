@@ -27,6 +27,11 @@ import {
   type Sector,
 } from "./data";
 import { cinematify } from "./sections/anim";
+import Innovation from "./sections/Innovation";
+import Architecture from "./sections/Architecture";
+import Correlations from "./sections/Correlations";
+import Impact from "./sections/Impact";
+import HomeImpact from "./sections/HomeImpact";
 
 function StatusTag({ status }: { status: Sector["status"] }) {
   return status === "live" ? (
@@ -335,7 +340,15 @@ export default function StaticStory() {
         </div>
       </section>
 
-      {/* chapter VI — finale */}
+      {/* chapters VI–X — the same flowing sections as the main experience
+          (they are DOM-only, so the static story reuses them verbatim) */}
+      <Innovation />
+      <Architecture />
+      <Correlations />
+      <Impact />
+      <HomeImpact />
+
+      {/* chapter XI — finale */}
       <section
         ref={finaleRef}
         aria-labelledby="finale-heading"
