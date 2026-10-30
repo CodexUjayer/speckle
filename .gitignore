@@ -50,5 +50,24 @@ test
 prompt
 
 server.log
-# Skills directory
+
+# ---------------------------------------------------------------------------
+# MOTUS repo hygiene — sandbox & dev artifacts, never push these
+# ---------------------------------------------------------------------------
+
+# agent/tool working artifacts (screenshots taken while verifying the page)
+/tests/
+/tool-results/
+
+# cloud-sandbox runtime files (gateway config, helper scripts)
+/Caddyfile
+/.zscripts/
 /skills/
+
+# local scratch folders used by the sandbox file transfer
+/download/
+
+# local SQLite database (the landing page is fully static — the DB is
+# only used if/when server-side features are added)
+/db/*.db
+/db/*.sqlite
