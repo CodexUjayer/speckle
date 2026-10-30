@@ -119,7 +119,7 @@ export default function Architecture() {
       () => {
         const el = stack.current!;
         const holder = sticky.current!;
-        gsap.set(el, { rotateX: 58, rotateZ: -15, "--gap": 26 });
+        gsap.set(el, { rotateX: 58, rotateZ: -14, "--gap": 26, y: 6 });
 
         let active = -1;
         const tl = gsap.timeline({
@@ -130,7 +130,9 @@ export default function Architecture() {
             end: "bottom bottom",
             scrub: 0.7,
             onUpdate: (self) => {
-              const i = Math.min(4, Math.floor(self.progress / 0.13));
+              /* one story every fifth of the pin — the last two land
+                 during the hold, when the machine is fully apart */
+              const i = Math.min(4, Math.floor(self.progress / 0.2));
               if (i !== active) {
                 active = i;
                 holder.dataset.active = String(i);
@@ -144,13 +146,13 @@ export default function Architecture() {
           { autoAlpha: 1, duration: 0.05 },
           0,
         );
-        /* the group rides low and drifts down as the layers rise —
-           perspective magnifies the front layers, and this keeps the
-           whole explosion framed */
+        /* a whisper of drift, so the take-apart feels alive — the
+           explosion itself is centred on the stack plane (±2 gaps),
+           so almost no compensation is needed to keep it framed */
         tl.fromTo(
           el,
-          { y: 40 },
-          { y: 92, duration: 0.55 },
+          { y: 6 },
+          { y: 16, duration: 0.55 },
           0,
         );
         /* the take-apart itself — every tween below lives in the first
@@ -159,7 +161,7 @@ export default function Architecture() {
            half of the pin instead of completing at the very end */
         tl.to(
           el,
-          { rotateX: 44, rotateZ: -5, "--gap": 96, duration: 0.52 },
+          { rotateX: 45, rotateZ: -3, "--gap": 76, duration: 0.52 },
           0.03,
         );
         /* the hold — pads the timeline to 1.0 so 55% of timeline time

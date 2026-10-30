@@ -327,7 +327,7 @@ export interface ArchLayer {
 export const ARCHITECTURE = {
   kicker: "Chapter VII — How MOTUS is built",
   heading: "One machine. Five honest stages.",
-  body: "The whole engine reads top to bottom: data flows upward, answers come out at the top. Scroll to take it apart.",
+  body: "The engine reads in one direction: raw satellite data enters at the bottom, honest answers come out at the top. Five stages, each doing exactly one job — scroll to take it apart.",
   cue: "Take it apart",
   layers: <ArchLayer[]>[
     {
@@ -335,7 +335,7 @@ export const ARCHITECTURE = {
       id: "retrieval",
       title: "Retrieval",
       tagline: "Decide what to fetch — then get it",
-      body: "Granule and event pollers — ComCat, FIRMS, IBTrACS, GFW, IMERG — watch the world and wake the tiles that matter. One client per source fetches exactly the bytes needed, behind centralised keys and a disk cache that fails loudly, never silently.",
+      body: "Pollers watch earthquake feeds, fire detections and storm tracks around the clock. When something moves, one dedicated client per source fetches exactly the data needed — cached on disk, and loud when it fails.",
       chips: ["event pollers", "per-source clients", "TTL cache"],
     },
     {
@@ -343,7 +343,7 @@ export const ARCHITECTURE = {
       id: "bundle",
       title: "The SceneBundle",
       tagline: "One read-only object",
-      body: "Common preprocessing — P01 through P13 — runs once per frame, tile and epoch, and hands every pipeline the same immutable bundle. It is the only measurement-side input a pipeline is ever allowed to read.",
+      body: "All shared preprocessing runs once per scene, then is frozen into a single read-only bundle. Every pipeline reads that same immutable object — no detector can ever see different data.",
       chips: ["P01–P13", "read-only", "provenance attached"],
     },
     {
@@ -351,7 +351,7 @@ export const ARCHITECTURE = {
       id: "pipelines",
       title: "The pipelines",
       tagline: "Seventeen watchers, zero gossip",
-      body: "Every hazard detector lives in its own folder — manifest, prep, fetch, model, verdict — and runs in parallel without touching the others. Shared physics lives one level up in engine/lib, where everyone can see it equally.",
+      body: "Each of the seventeen hazard detectors lives in its own folder and runs in parallel — none may read another’s output. Shared physics sits in a common library, equally visible to all.",
       chips: ["independent", "process pool", "manifest-first"],
     },
     {
@@ -359,7 +359,7 @@ export const ARCHITECTURE = {
       id: "verdict",
       title: "The verdict",
       tagline: "Collect · calibrate · link · select · persist",
-      body: "Every pipeline’s return is collected, calibrated when it can be, and linked into causal chains — storm → flood → erosion — after the fact. Exclusive explanations are resolved by evidence before anything is persisted.",
+      body: "Every return is collected, calibrated where possible, and linked into causal chains — storm → flood → erosion. Conflicting explanations are settled by evidence before anything is saved.",
       chips: ["causal links", "no silent fusion", "status tiers"],
     },
     {
@@ -367,7 +367,7 @@ export const ARCHITECTURE = {
       id: "serving",
       title: "Serving",
       tagline: "Answers, out in the open",
-      body: "Tiles, events and evidence layers over a clean API — and the console drawer is generated straight from each pipeline’s manifest, so the interface can never claim more than the pipeline actually said.",
+      body: "Tiles, events and evidence ship over a clean public API. The console is generated from each pipeline’s own manifest — so the interface can never claim more than the pipeline actually said.",
       chips: ["/tiles", "/events", "/scanner/status"],
     },
   ],
@@ -376,11 +376,11 @@ export const ARCHITECTURE = {
   sideNotes: [
     {
       title: "engine/lib",
-      body: "Shared physics and statistics — Okada85, flood detection, offset tracking, changepoint, terrain — the only code pipelines may cross-import.",
+      body: "Shared physics and statistics — Okada85, flood detection, offset tracking — the only code pipelines are allowed to cross-import.",
     },
     {
       title: "The registry",
-      body: "Scans the pipeline folders, reads every manifest, and runs whatever applies — in a process pool, in parallel.",
+      body: "Scans the pipeline folders, reads every manifest, and runs whatever applies — in a parallel process pool.",
     },
     {
       title: "Validation",

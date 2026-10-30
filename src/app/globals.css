@@ -252,21 +252,27 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2.5rem;
+    /* gaps breathe with the viewport height, so the caption, the machine
+       and the story panel always fit inside one screen together */
+    gap: clamp(1.25rem, 3.5svh, 2.5rem);
     padding: 0;
   }
-  /* the stage reserves the vertical room the explosion needs, so the
-     layers never collide with the detail panel below */
+  /* the stage reserves the vertical room the explosion needs — it
+     shrinks on short screens so the layers can never leave the frame */
   .arch-stage {
     width: min(660px, 86vw);
-    height: 430px;
+    height: min(430px, 50svh);
     display: flex;
     align-items: center;
     justify-content: center;
   }
   .arch-stack {
     position: relative;
-    height: 84px;
+    /* the slabs are absolutely placed, so they contribute no intrinsic
+       width — without this the flex-item stack collapses to zero and the
+       tiles shrink to slivers that can only fit their numbers */
+    width: 100%;
+    height: 72px;
     display: block;
   }
   .arch-slab {
